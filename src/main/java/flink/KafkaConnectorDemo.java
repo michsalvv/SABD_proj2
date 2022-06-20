@@ -4,16 +4,16 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import utils.ValQ1;
 
-import java.time.Duration;
+import java.sql.Timestamp;
 
 public class KafkaConnectorDemo {
 
@@ -34,57 +34,22 @@ public class KafkaConnectorDemo {
 
         DataStreamSource<String> src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        SingleOutputStreamOperator<Tuple3<Integer, Long, Float>> dataStream = src
-                .map((MapFunction<String, Message>) value -> Message.create(value))
+        /*
+        var dataStream = src
+                .map(value -> Tuple2.of(ValQ1.create(value), 1))
+                .returns(Types.TUPLE(Types.GENERIC(ValQ1.class), Types.INT))
+                .windowAll(TumblingEventTimeWindows.of(Time.seconds(10)));
+*/
+        SingleOutputStreamOperator<Tuple2<Timestamp, ValQ1>> test = src.map(new MapFunction<String, Tuple2<Timestamp, ValQ1>>() {
 
-                .map((MapFunction<Message, Tuple3<Integer, Long, Float>>) value -> Tuple3.of(1, value.getTimestamp(), value.getRandom()))
-                .returns(Types.TUPLE(Types.INT, Types.LONG, Types.FLOAT))
-                .assignTimestampsAndWatermarks(
-                        WatermarkStrategy
-                                .<Tuple3<Integer, Long, Float>>forMonotonousTimestamps()
-                                // forBoundedOutOfOrderness(Duration.ofSeconds(1))
-                                .withTimestampAssigner((tuple, timestamp) -> tuple.f1)
-                                .withIdleness(Duration.ofSeconds(10))
-                )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(10)))
-                .sum(0);
-        dataStream.print();
+            @Override
+            public Tuple2<Timestamp, ValQ1> map(String s) throws Exception {
+                ValQ1 val = ValQ1.create(s);
+                return Tuple2.of(val.getTimestamp(), val);
+            }
+        });
+        test.print();
 
         env.execute("Kafka Connector Demo");
-    }
-
-
-    public static class Message{
-        public int sequence;
-        public long timestamp;
-        public String message;
-        public float random;
-
-        public static Message create(String rawMessage){
-            var values = rawMessage.split(";");
-            return new Message(Integer.parseInt(values[0]),
-                    Long.parseLong(values[1]), values[2],
-                    Float.parseFloat(values[3].replace(",",".")));
-        }
-
-        private Message(int sequence, long timestamp, String message, float random){
-            this.sequence = sequence;
-            this.timestamp = timestamp;
-            this.message = message;
-            this.random = random;
-        }
-
-        public float getRandom() {
-            return random;
-        }
-        public int getSequence() {
-            return sequence;
-        }
-        public long getTimestamp() {
-            return timestamp;
-        }
-        public String getMessage() {
-            return message;
-        }
     }
 }

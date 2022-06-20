@@ -13,13 +13,18 @@ services:
     container_name: kafka-broker
     ports:
       - "9092:9092"
+      - "29092:29092"
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      # list of listeners and the host/IP and port to which Kafka binds to for listening
+      KAFKA_LISTENERS: PLAINTEXT://kafka-broker:9092,PLAINTEXT_INTERNAL://kafka-broker:29092
+      # list of listeners with their host/IP and port. This is the metadata that’s passed back to clients.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092,PLAINTEXT_INTERNAL://kafka-broker:29092
+      # defines key/value pairs for the security protocol to use per listener name
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -49,15 +54,15 @@ services:
         taskmanager.numberOfTaskSlots: 5
 
   kafdrop:
-      image: obsidiandynamics/kafdrop
-      restart: "no"
-      ports:
-        - "9000:9000"
-      environment:
-        KAFKA_BROKERCONNECT: "kafka-broker:9092"
-      depends_on:
-        - broker
-        
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka-broker:9092"
+    depends_on:
+      - broker
+
 networks:
   default:
     name: proj2_network
