@@ -7,6 +7,8 @@ import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
@@ -30,23 +32,19 @@ public class KafkaConnectorDemo {
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
-        var src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        DataStreamSource<String> src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        var dataStream = src
-                .map(new MapFunction<String, Message>() {
-                    @Override
-                    public Message map(String value) throws Exception {
-                        return Message.create(value);
-                    }
-                })
+        SingleOutputStreamOperator<Tuple3<Integer, Long, Float>> dataStream = src
+                .map((MapFunction<String, Message>) value -> Message.create(value))
+
                 .map((MapFunction<Message, Tuple3<Integer, Long, Float>>) value -> Tuple3.of(1, value.getTimestamp(), value.getRandom()))
-                    .returns(Types.TUPLE(Types.INT, Types.LONG, Types.FLOAT))
+                .returns(Types.TUPLE(Types.INT, Types.LONG, Types.FLOAT))
                 .assignTimestampsAndWatermarks(
                         WatermarkStrategy
-                        .<Tuple3<Integer, Long, Float>>forMonotonousTimestamps()
-                            // forBoundedOutOfOrderness(Duration.ofSeconds(1))
-                        .withTimestampAssigner((tuple, timestamp) -> tuple.f1)
-                        .withIdleness(Duration.ofSeconds(10))
+                                .<Tuple3<Integer, Long, Float>>forMonotonousTimestamps()
+                                // forBoundedOutOfOrderness(Duration.ofSeconds(1))
+                                .withTimestampAssigner((tuple, timestamp) -> tuple.f1)
+                                .withIdleness(Duration.ofSeconds(10))
                 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(10)))
                 .sum(0);
