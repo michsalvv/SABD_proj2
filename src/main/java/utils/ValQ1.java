@@ -22,9 +22,9 @@ public class ValQ1 implements Serializable {
 
     public static ValQ1 create(String rawMessage) throws ParseException {
         var values = rawMessage.split(";");
-        System.out.println(values[0]);
-        System.out.println(values[1]);
-        System.out.println(values[2]);
+        //System.out.println(values[0]);
+        //System.out.println(values[1]);
+        //System.out.println(values[2]);
         return new ValQ1(Timestamp.valueOf(values[0]), Long.parseLong(values[1]),
                 NumberFormat.getInstance(Locale.getDefault()).parse(values[2]).doubleValue());
     }
