@@ -41,47 +41,14 @@ public class KafkaConnectorDemo {
                 .map(values -> Tuple2.of(ValQ1.create(values), 1))
                 .returns(Types.TUPLE(Types.GENERIC(ValQ1.class), Types.INT))
                 .assignTimestampsAndWatermarks(WatermarkStrategy
-                        .<Tuple2<ValQ1, Integer>>forMonotonousTimestamps()
+                        .<Tuple2<ValQ1, Integer>>forBoundedOutOfOrderness(Duration.ofMinutes(1))                          // Assumiamo il dataset ordinato
                         .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
-                        .withIdleness(Duration.ofSeconds(20))
+                        .withIdleness(Duration.ofMinutes(1))
                         )
                 .keyBy(values -> values.f0.getSensor_id())
-                .window(TumblingEventTimeWindows.of(Time.seconds(10)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .aggregate(new Average());
         dataStream.print();
         env.execute("Kafka Connector Demo");
-    }
-
-    public static class AverageAccumulator {
-        long count;
-        long sum;
-    }
-
-    public static class Average implements AggregateFunction<Tuple2<ValQ1, Integer>, AverageAccumulator, List<Double>> {
-        public AverageAccumulator createAccumulator() {
-            return new AverageAccumulator();
-        }
-
-        @Override
-        public AverageAccumulator add(Tuple2<ValQ1, Integer> values, AverageAccumulator acc) {
-            acc.sum += values.f0.getTemperature();
-            acc.count++;
-            return acc;
-        }
-
-        @Override
-        public AverageAccumulator merge(AverageAccumulator a, AverageAccumulator b) {
-            a.count += b.count;
-            a.sum += b.sum;
-            return a;
-        }
-
-        @Override
-        public List<Double> getResult(AverageAccumulator acc) {
-            List<Double> res = new ArrayList();
-            res.add((double)acc.count);
-            res.add(acc.sum / (double) acc.count);
-            return res;
-        }
     }
 }

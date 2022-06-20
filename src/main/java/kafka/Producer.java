@@ -27,7 +27,7 @@ public class Producer {
 
         boolean first = true;
         Timestamp previous = null;
-        BufferedReader br = new BufferedReader(new FileReader("data/reduced.csv"));
+        BufferedReader br = new BufferedReader(new FileReader("data/2022-05_bmp180.csv"));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {
@@ -43,7 +43,7 @@ public class Producer {
                     first = false;
                 }
                 else {
-                    speed_factor = 1;
+                    speed_factor = 3600;
                     long diff = (timestamp.getTime() - previous.getTime())/speed_factor;
                     Thread.sleep(diff);
                 }
