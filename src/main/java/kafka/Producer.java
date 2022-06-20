@@ -39,7 +39,7 @@ public class Producer {
                     Timestamp timestamp = new Timestamp(date.getTime());
                     Long sensor_id = Long.parseLong(values[0]);
                     Double temperature = Double.parseDouble(values[9]);
-                    var message = String.format("%s;%d;%,.4f;", timestamp, sensor_id, temperature);
+                    var message = String.format("%s;%d;%,.4f;", timestamp, 12, temperature);
                     var producerRecord = new ProducerRecord<>("flink-events", message);
                     if (first) {
                         first = false;
