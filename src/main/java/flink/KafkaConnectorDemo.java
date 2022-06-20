@@ -2,9 +2,10 @@ package flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -16,6 +17,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.ValQ1;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KafkaConnectorDemo {
     //TODO Fare un serializzatore vero
@@ -34,19 +37,51 @@ public class KafkaConnectorDemo {
                 .build();
         var src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        SingleOutputStreamOperator<Double> test = src.map((MapFunction<String, ValQ1>) s -> {
-            return ValQ1.create(s);
-        })
-                .assignTimestampsAndWatermarks(WatermarkStrategy.<ValQ1>forMonotonousTimestamps()
-                        .withTimestampAssigner((val, l) -> val.getTimestamp().getTime())
-//                        .withIdleness(Duration.ofMillis(1))
-                )
-                .keyBy(val -> val.getSensor_id())
+        var dataStream = src
+                .map(values -> Tuple2.of(ValQ1.create(values), 1))
+                .returns(Types.TUPLE(Types.GENERIC(ValQ1.class), Types.INT))
+                .assignTimestampsAndWatermarks(WatermarkStrategy
+                        .<Tuple2<ValQ1, Integer>>forMonotonousTimestamps()
+                        .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
+                        .withIdleness(Duration.ofSeconds(20))
+                        )
+                .keyBy(values -> values.f0.getSensor_id())
                 .window(TumblingEventTimeWindows.of(Time.seconds(10)))
-                .aggregate(new AggregatorQuery1());
-
-        test.print();
-
+                .aggregate(new Average());
+        dataStream.print();
         env.execute("Kafka Connector Demo");
+    }
+
+    public static class AverageAccumulator {
+        long count;
+        long sum;
+    }
+
+    public static class Average implements AggregateFunction<Tuple2<ValQ1, Integer>, AverageAccumulator, List<Double>> {
+        public AverageAccumulator createAccumulator() {
+            return new AverageAccumulator();
+        }
+
+        @Override
+        public AverageAccumulator add(Tuple2<ValQ1, Integer> values, AverageAccumulator acc) {
+            acc.sum += values.f0.getTemperature();
+            acc.count++;
+            return acc;
+        }
+
+        @Override
+        public AverageAccumulator merge(AverageAccumulator a, AverageAccumulator b) {
+            a.count += b.count;
+            a.sum += b.sum;
+            return a;
+        }
+
+        @Override
+        public List<Double> getResult(AverageAccumulator acc) {
+            List<Double> res = new ArrayList();
+            res.add((double)acc.count);
+            res.add(acc.sum / (double) acc.count);
+            return res;
+        }
     }
 }
