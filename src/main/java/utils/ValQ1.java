@@ -1,7 +1,5 @@
 package utils;
 
-import flink.KafkaConnectorDemo;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
