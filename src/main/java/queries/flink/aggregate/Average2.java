@@ -3,36 +3,37 @@ package queries.flink.aggregate;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import utils.ValQ1;
+import utils.ValQ2;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-public class Average implements AggregateFunction<Tuple2<ValQ1, Integer>, AverageAccumulator, ValQ1> {
-    public AverageAccumulator createAccumulator() {
-        return new AverageAccumulator();
+public class Average2 implements AggregateFunction<Tuple2<ValQ2, Integer>, AverageAccumulator2, ValQ2> {
+    public AverageAccumulator2 createAccumulator() {
+        return new AverageAccumulator2();
     }
 
     @Override
-    public AverageAccumulator add(Tuple2<ValQ1, Integer> values, AverageAccumulator acc) {
+    public AverageAccumulator2 add(Tuple2<ValQ2, Integer> values, AverageAccumulator2 acc) {
         acc.sum += values.f0.getTemperature();
         acc.count++;
-        acc.sensor_id = values.f0.getSensor_id();
+        acc.location = values.f0.getLocation();
         acc.last_timestamp = values.f0.getTimestamp();
         return acc;
     }
 
     @Override
-    public AverageAccumulator merge(AverageAccumulator a, AverageAccumulator b) {
+    public AverageAccumulator2 merge(AverageAccumulator2 a, AverageAccumulator2 b) {
         a.count += b.count;
         a.sum += b.sum;
         return a;
     }
 
     @Override
-    public ValQ1 getResult(AverageAccumulator acc) {
+    public ValQ2 getResult(AverageAccumulator2 acc) {
         double mean = acc.sum / (double) acc.count;
-        ValQ1 result = new ValQ1();
-        result.setSensor_id(acc.sensor_id);
+        ValQ2 result = new ValQ2();
+        result.setLocation(acc.location);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);
         result.setTimestamp(getHourSlot(acc.last_timestamp));

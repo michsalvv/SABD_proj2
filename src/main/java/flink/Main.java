@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import queries.flink.Query1;
+import queries.flink.Query2;
 import utils.ValQ1;
 
 import java.time.Duration;
@@ -28,8 +29,9 @@ public class Main {
                 .build();
         var src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        var q1 = new Query1(env,src);
-        q1.execute();
-
+        var q1 = new Query1(env, src);
+        var q2 = new Query2(env, src);
+//        q1.execute();
+        q2.execute();
     }
 }

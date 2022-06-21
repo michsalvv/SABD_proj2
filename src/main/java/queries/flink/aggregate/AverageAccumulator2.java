@@ -2,9 +2,9 @@ package queries.flink.aggregate;
 
 import java.sql.Timestamp;
 
-public class AverageAccumulator {
+public class AverageAccumulator2 {
     long count;
     double sum;
-    long sensor_id;
+    long location;
     Timestamp last_timestamp;
 }

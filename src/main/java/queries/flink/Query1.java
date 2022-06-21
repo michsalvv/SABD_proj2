@@ -37,6 +37,6 @@ public class Query1 extends Query {
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .aggregate(new Average());
         dataStream.print();
-        env.execute("Kafka Connector Demo");
+        env.execute("Query 1");
     }
 }

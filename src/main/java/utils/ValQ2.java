@@ -6,29 +6,25 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-public class ValQ1 implements Serializable {
+public class ValQ2 implements Serializable {
     Timestamp timestamp;
-
-    Long sensor_id;
+    Long location;
     Double temperature;
     Long occurrences;
 
-    public ValQ1(Timestamp timestamp, Long sensor_id, Double temperature) {
+    public ValQ2(Timestamp timestamp, Long location, Double temperature) {
         this.timestamp = timestamp;
-        this.sensor_id = sensor_id;
         this.temperature = temperature;
+        this.location = location;
     }
 
-    public ValQ1() {
+    public ValQ2() {
     }
 
-    public static ValQ1 create(String rawMessage) throws ParseException {
-//        System.out.println(rawMessage);
+    public static ValQ2 create(String rawMessage) throws ParseException {
         var values = rawMessage.split(";");
-        //System.out.println(values[0]);
-        //System.out.println(values[1]);
-        //System.out.println(values[2]);
-        return new ValQ1(Timestamp.valueOf(values[0]), Long.parseLong(values[1]),
+        return new ValQ2(Timestamp.valueOf(values[0]),
+                Long.parseLong(values[3]),
                 NumberFormat.getInstance(Locale.getDefault()).parse(values[2]).doubleValue());
     }
 
@@ -36,9 +32,6 @@ public class ValQ1 implements Serializable {
         return timestamp;
     }
 
-    public Long getSensor_id() {
-        return sensor_id;
-    }
 
     public Double getTemperature() {
         return temperature;
@@ -48,9 +41,6 @@ public class ValQ1 implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public void setSensor_id(Long sensor_id) {
-        this.sensor_id = sensor_id;
-    }
 
     public void setTemperature(Double temperature) {
         this.temperature = temperature;
@@ -64,11 +54,19 @@ public class ValQ1 implements Serializable {
         this.occurrences = occurrences;
     }
 
+    public Long getLocation() {
+        return location;
+    }
+
+    public void setLocation(Long location) {
+        this.location = location;
+    }
+
     @Override
     public String toString() {
-        return "ValQ1{" +
+        return "ValQ2{" +
                 "timestamp=" + timestamp +
-                ", sensor_id=" + sensor_id +
+                ", location=" + location +
                 ", temperature=" + temperature +
                 ", occurrences=" + occurrences +
                 '}';
