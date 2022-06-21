@@ -1,7 +1,5 @@
 package utils;
 
-import flink.KafkaConnectorDemo;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -13,6 +11,7 @@ public class ValQ1 implements Serializable {
 
     Long sensor_id;
     Double temperature;
+    Long occurrences;
 
     public ValQ1(Timestamp timestamp, Long sensor_id, Double temperature) {
         this.timestamp = timestamp;
@@ -20,7 +19,11 @@ public class ValQ1 implements Serializable {
         this.temperature = temperature;
     }
 
+    public ValQ1() {
+    }
+
     public static ValQ1 create(String rawMessage) throws ParseException {
+//        System.out.println(rawMessage);
         var values = rawMessage.split(";");
         //System.out.println(values[0]);
         //System.out.println(values[1]);
@@ -53,13 +56,21 @@ public class ValQ1 implements Serializable {
         this.temperature = temperature;
     }
 
+    public Long getOccurrences() {
+        return occurrences;
+    }
+
+    public void setOccurrences(Long occurrences) {
+        this.occurrences = occurrences;
+    }
+
     @Override
     public String toString() {
         return "ValQ1{" +
                 "timestamp=" + timestamp +
                 ", sensor_id=" + sensor_id +
                 ", temperature=" + temperature +
+                ", occurrences=" + occurrences +
                 '}';
     }
-
 }
