@@ -36,8 +36,6 @@ public class Query1 extends Query {
                 .setParallelism(2);
 
         dataStream.print();
-        env.execute("Kafka Connector Demo");
-
-
+        env.execute("Query 1");
     }
 }
