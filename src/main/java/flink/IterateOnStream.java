@@ -13,19 +13,36 @@ public class IterateOnStream {
      *
      *  someIntegers -(iteration)-> minusOne -> <> ->
      *                    ^_____________________|
+     *
+     * Si itera per un certo numero di volte sui dati in stream, fino al verificarsi di una certa condizione
      */
+    // NOTA: nell'output abbiamo alcuni errori perché stiamo eseguendo su IDE locale, sul cluster non dovrebbero esserci
+    // Output:
+//        6> 1  (X)
+//        7> 2  (o)
+//        3> -1 (X)
+//        4> 0  (X)
+//        5> 2  (o)
+//        2> 2  (o)
+//        1> 2  (o)
+//        8> 2  (o)
+//        9> 2  (o)
+//        10> 2 (o)
+//        11> 2 (o)
     public static void main(String[] args) throws Exception {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         long threshold = 2L;
 
         DataStream<Long> someIntegers = env.fromSequence(0, 10);
-
+//        someIntegers.print();
+//        System.out.println("______________________________-");
         IterativeStream<Long> iteration = someIntegers.iterate();
+//        iteration.print();
 
         DataStream<Long> minusOne = iteration.map(new Decrement());
         DataStream<Long> stillGreaterThanZero = minusOne.filter(new GreaterThan(threshold));
-        iteration.closeWith(stillGreaterThanZero);
+        iteration.closeWith(stillGreaterThanZero); // Specifico che l'iterazione si deve chiudere in questo punto
 
         DataStream<Long> result = minusOne.filter(new SmallerEqualThan(threshold));
         result.print();

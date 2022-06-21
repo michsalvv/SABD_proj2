@@ -1,16 +1,11 @@
-package flink;
+package queries.flink.aggregate;
 
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import scala.Tuple3;
 import utils.ValQ1;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class Average implements AggregateFunction<Tuple2<ValQ1, Integer>, AverageAccumulator, ValQ1> {
     public AverageAccumulator createAccumulator() {
