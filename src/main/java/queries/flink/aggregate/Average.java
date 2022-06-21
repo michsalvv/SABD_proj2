@@ -1,5 +1,6 @@
 package queries.flink.aggregate;
 
+import flink.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import utils.ValQ1;
@@ -7,17 +8,17 @@ import utils.ValQ1;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-public class Average implements AggregateFunction<Tuple2<ValQ1, Integer>, AverageAccumulator, ValQ1> {
+public class Average implements AggregateFunction<Event, AverageAccumulator, ValQ1> {
     public AverageAccumulator createAccumulator() {
         return new AverageAccumulator();
     }
 
     @Override
-    public AverageAccumulator add(Tuple2<ValQ1, Integer> values, AverageAccumulator acc) {
-        acc.sum += values.f0.getTemperature();
+    public AverageAccumulator add(Event values, AverageAccumulator acc) {
+        acc.sum += values.getTemperature();
         acc.count++;
-        acc.sensor_id = values.f0.getSensor_id();
-        acc.last_timestamp = values.f0.getTimestamp();
+        acc.sensor_id = values.getSensor_id();
+        acc.last_timestamp = values.getTimestamp();
         return acc;
     }
 
