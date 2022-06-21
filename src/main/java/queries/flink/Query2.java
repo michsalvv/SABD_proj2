@@ -9,14 +9,21 @@
 package queries.flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.util.Collector;
 import queries.Query;
 import queries.flink.aggregate.Average2;
+import queries.flink.process.Top;
 import utils.ValQ2;
 
 import java.time.Duration;
@@ -38,12 +45,16 @@ public class Query2 extends Query {
                 .assignTimestampsAndWatermarks(WatermarkStrategy
                         .<Tuple2<ValQ2, Integer>>forBoundedOutOfOrderness(Duration.ofMinutes(1))                          // Assumiamo il dataset ordinato
                         .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
-                        .withIdleness(Duration.ofMinutes(1))
-                        )
+                        .withIdleness(Duration.ofMinutes(1)))
+
                 .keyBy(values -> values.f0.getLocation())
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .aggregate(new Average2());
+                .aggregate(new Average2(), new Top());
+//                .aggregate(new Average2());
+
         dataStream.print();
         env.execute("Query 2");
     }
 }
+
+
