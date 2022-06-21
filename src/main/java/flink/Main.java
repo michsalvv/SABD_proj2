@@ -1,17 +1,11 @@
 package flink;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import queries.flink.Query1;
 import queries.flink.Query2;
-import utils.ValQ1;
 
 import java.time.Duration;
 
@@ -20,18 +14,26 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        KafkaSource<String> source = KafkaSource.<String>builder()
+        KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer(new SimpleStringSchema())
+//                .setUnbounded(OffsetsInitializer.latest())
+                .setValueOnlyDeserializer(new CustomDeserializer())
                 .build();
-        var src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
-        var q1 = new Query1(env, src);
+        var src = env.fromSource(source, WatermarkStrategy
+                .<Event>forMonotonousTimestamps()
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime())
+                        .withIdleness(Duration.ofMinutes(1)),
+                "Kafka Source");
+
+
+        var q1 = new Query1(env,src);
         var q2 = new Query2(env, src);
-//        q1.execute();
-        q2.execute();
+        q1.execute();
+//        q2.execute();
+
     }
 }

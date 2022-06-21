@@ -8,6 +8,7 @@
 
 package queries.flink;
 
+import flink.Event;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -30,29 +31,32 @@ import java.time.Duration;
 
 public class Query2 extends Query {
     StreamExecutionEnvironment env;
-    DataStreamSource<String> src;
+    DataStreamSource<Event> src;
 
-    public Query2(StreamExecutionEnvironment env, DataStreamSource<String> src) {
+    public Query2(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
         this.src = src;
     }
 
     @Override
     public void execute() throws Exception {
-        var dataStream = src
-                .map(values -> Tuple2.of(ValQ2.create(values), 1))
-                .returns(Types.TUPLE(Types.GENERIC(ValQ2.class), Types.INT))
-                .assignTimestampsAndWatermarks(WatermarkStrategy
-                        .<Tuple2<ValQ2, Integer>>forBoundedOutOfOrderness(Duration.ofMinutes(1))                          // Assumiamo il dataset ordinato
-                        .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
-                        .withIdleness(Duration.ofMinutes(1)))
-
-                .keyBy(values -> values.f0.getLocation())
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .aggregate(new Average2(), new Top());
+//        var dataStream = src
+//                .map(values -> Tuple2.of(ValQ2.create(values), 1))
+//                .returns(Types.TUPLE(Types.GENERIC(ValQ2.class), Types.INT))
+//                .assignTimestampsAndWatermarks(WatermarkStrategy
+//                        .<Tuple2<ValQ2, Integer>>forBoundedOutOfOrderness(Duration.ofMinutes(1))                          // Assumiamo il dataset ordinato
+//                        .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
+//                        .withIdleness(Duration.ofMinutes(1)))
+//
+//                .keyBy(values -> values.f0.getLocation())
+//                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+//                .aggregate(new Average2(), new Top());
 //                .aggregate(new Average2());
 
-        dataStream.print();
+//        var datastream = src
+//                .keyBy(event -> event.getLocation())
+//                        .window(TumblingEventTimeWindows.of)
+//        dataStream.print();
         env.execute("Query 2");
     }
 }
