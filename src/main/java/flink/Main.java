@@ -5,6 +5,7 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import queries.flink.Query1;
+import queries.flink.Query2;
 
 import java.time.Duration;
 
@@ -30,7 +31,9 @@ public class Main {
 
 
         var q1 = new Query1(env,src);
+        var q2 = new Query2(env, src);
         q1.execute();
+//        q2.execute();
 
     }
 }

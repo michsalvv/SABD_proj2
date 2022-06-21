@@ -14,10 +14,10 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
 
     @Override
     public boolean isEndOfStream(Event nextElement) {
-        if (nextElement.getSensor_id() == 0){
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-            return true;
-        }
+//        if (nextElement.getSensor_id() == 0){
+//            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+//            return true;
+//        }
         return false;
     }
 

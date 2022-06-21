@@ -30,7 +30,7 @@ public class Query1 extends Query {
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
                 .keyBy(Event::getSensor_id)
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60), Time.seconds(30)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new Average())
                 .setParallelism(2);

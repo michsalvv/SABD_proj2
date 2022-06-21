@@ -13,6 +13,7 @@ public class Event implements Serializable {
     private Timestamp timestamp;
     private Long sensor_id;
     private Double temperature;
+    private Long location;
 
     public Event(String rawMessage){
         var values = rawMessage.split(";");
@@ -23,6 +24,7 @@ public class Event implements Serializable {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+        this.location = Long.parseLong(values[3]);
     }
 
     @Override
@@ -31,9 +33,9 @@ public class Event implements Serializable {
                 "timestamp=" + timestamp +
                 ", sensor_id=" + sensor_id +
                 ", temperature=" + temperature +
+                ", location=" + location +
                 '}';
     }
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -56,5 +58,13 @@ public class Event implements Serializable {
 
     public void setTemperature(Double temperature) {
         this.temperature = temperature;
+    }
+
+    public Long getLocation() {
+        return location;
+    }
+
+    public void setLocation(Long location) {
+        this.location = location;
     }
 }
