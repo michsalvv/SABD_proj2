@@ -25,7 +25,7 @@ public class ValQ2 implements Serializable {
         var values = rawMessage.split(";");
         return new ValQ2(Timestamp.valueOf(values[0]),
                 Long.parseLong(values[3]),
-                NumberFormat.getInstance(Locale.getDefault()).parse(values[2]).doubleValue());
+                utils.Tools.stringToDouble(values[2]));
     }
 
     public Timestamp getTimestamp() {

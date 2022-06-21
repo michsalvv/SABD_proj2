@@ -2,7 +2,6 @@ package queries.flink.aggregate;
 
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import utils.ValQ1;
 import utils.ValQ2;
 
 import java.sql.Timestamp;

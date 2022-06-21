@@ -11,4 +11,4 @@ done
 sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --delete --topic flink-events
 
 ## copy jar in flink's jobmanager
-sudo docker cp target/SABD_proj2-1.0-SNAPSHOT.jar jobmanager:/home
+sudo docker cp target/SABD_proj2-1.0.jar jobmanager:/home

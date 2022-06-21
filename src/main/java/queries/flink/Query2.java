@@ -16,7 +16,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import queries.Query;
-import queries.flink.aggregate.Average;
 import queries.flink.aggregate.Average2;
 import utils.ValQ2;
 
