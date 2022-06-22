@@ -25,10 +25,13 @@ public class Main {
 
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime())
-                        .withIdleness(Duration.ofMinutes(1)),
+                .withTimestampAssigner((event, l) -> {
+                    var ts = event.getTimestamp().getTime();
+                    System.out.println(event);
+                    System.out.println(ts);
+                            return ts;
+                }),
                 "Kafka Source");
-
 
         var q1 = new Query1(env,src);
         var q2 = new Query2(env, src);

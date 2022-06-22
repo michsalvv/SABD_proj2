@@ -59,10 +59,10 @@ public class Query2 extends Query {
 //        var dataStream = src
 //        var keyed = src.keyBy(event -> event.getLocation());
 
-        var mapped = src.map(e->new ValQ2(Tools.getSecondsSlot(e.getTimestamp(),5),e.getLocation(),e.getTemperature(),1L));
+        var mapped = src.map(e->new ValQ2(Tools.getSecondsSlot(e.getTimestamp(),10),e.getLocation(),e.getTemperature(),1L));
 
-        var keyed = mapped.keyBy(e -> e.getLocation());
-//        keyed.print();
+        var keyed    = mapped.keyBy(e -> e.getLocation());
+        keyed.print();
 
         var reduced = keyed.reduce(new ReduceFunction<ValQ2>() {
                     @Override
@@ -89,7 +89,7 @@ public class Query2 extends Query {
                     }
                 });
 
-        var window= mean.windowAll(TumblingEventTimeWindows.of(Time.seconds(5))).allowedLateness(Time.seconds(5));
+        var window= mean.windowAll(TumblingEventTimeWindows.of(Time.seconds(10  )));
         var processed = window.process(new TopAll());
         processed.print();
 
