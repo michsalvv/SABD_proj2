@@ -27,13 +27,13 @@ public class Producer {
 
         boolean first = true;
         Timestamp previous = null;
-        BufferedReader br = new BufferedReader(new FileReader("data/2022-05_bmp180.csv"));
+        BufferedReader br = new BufferedReader(new FileReader("data/sorted.csv"));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {
             String[] values = line.split(COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
-                var date = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss").parse(values[5]);
+                var date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(values[5]);
                 Timestamp timestamp = new Timestamp(date.getTime());
                 Long sensor_id = Long.parseLong(values[0]);
                 Double temperature = Double.parseDouble(values[9]);
@@ -43,12 +43,14 @@ public class Producer {
                     first = false;
                 }
                 else {
-                    speed_factor = 3600;
+                    speed_factor = 3600000;
                     long diff = (timestamp.getTime() - previous.getTime())/speed_factor;
-                    Thread.sleep(diff);
+                    if (diff > 0) {
+                        Thread.sleep(diff);
+                    }
                 }
                 producer.send(producerRecord);
-                System.out.printf("Send: %s%n", message);
+                //System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }
