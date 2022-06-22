@@ -63,23 +63,6 @@ services:
     depends_on:
       - broker
 
-  hdfs-master:
-    image: matnar/hadoop:3.3.2
-    container_name: namenode
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-    ports:
-      - '9870:9870'
-      - '54310:54310'
-
-  datanode1:
-    image: matnar/hadoop:3.3.2
-    container_name: datanode1
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-    ports:
-      - '9864:9864'
-
 networks:
   default:
     name: proj2_network

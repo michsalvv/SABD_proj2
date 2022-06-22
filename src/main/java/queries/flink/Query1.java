@@ -3,6 +3,10 @@ package queries.flink;
 import flink.Event;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
+import org.apache.flink.api.common.serialization.SimpleStringEncoder;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import queries.flink.aggregate.Average;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -28,7 +32,7 @@ public class Query1 extends Query {
 
     @Override
     public void execute() throws Exception {
-        String outputPath = "query1.csv";
+        String outputPath = "q1-res";
 
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
@@ -39,25 +43,17 @@ public class Query1 extends Query {
                 .setParallelism(2);
 
         dataStream.print();
-        env.execute("Query 1");
-
-        OutputFileConfig config = OutputFileConfig
-                .builder()
-                .withPartPrefix("part")
-                .withPartSuffix(".inprogress")
-                .build();
-
-        final StreamingFileSink<ValQ1> sink = StreamingFileSink
+      
+       final StreamingFileSink<ValQ1> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
                                 .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
-                .withOutputFileConfig(config)
                 .build();
         dataStream.addSink(sink);
-        env.execute("Kafka Connector Demo");
+        env.execute("Query 1");
     }
 }
