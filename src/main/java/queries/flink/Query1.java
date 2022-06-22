@@ -15,6 +15,7 @@ import queries.Query;
 import utils.ValQ1;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 public class Query1 extends Query {
     StreamExecutionEnvironment env;
@@ -27,6 +28,8 @@ public class Query1 extends Query {
 
     @Override
     public void execute() throws Exception {
+        String outputPath = "query1.csv";
+
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
                 .keyBy(Event::getSensor_id)
@@ -37,5 +40,24 @@ public class Query1 extends Query {
 
         dataStream.print();
         env.execute("Query 1");
+
+        OutputFileConfig config = OutputFileConfig
+                .builder()
+                .withPartPrefix("part")
+                .withPartSuffix(".inprogress")
+                .build();
+
+        final StreamingFileSink<ValQ1> sink = StreamingFileSink
+                .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withMaxPartSize(1024 * 1024 * 1024)
+                                .build())
+                .withOutputFileConfig(config)
+                .build();
+        dataStream.addSink(sink);
+        env.execute("Kafka Connector Demo");
     }
 }

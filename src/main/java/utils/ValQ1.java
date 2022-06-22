@@ -8,7 +8,6 @@ import java.util.Locale;
 
 public class ValQ1 implements Serializable {
     Timestamp timestamp;
-
     Long sensor_id;
     Double temperature;
     Long occurrences;
