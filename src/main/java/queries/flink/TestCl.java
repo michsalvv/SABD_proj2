@@ -6,15 +6,18 @@ import org.apache.flink.util.Collector;
 import utils.ValQ2;
 
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.ArrayList;
 
-public class TopAll extends ProcessAllWindowFunction<ValQ2, List<ValQ2>, TimeWindow> {
+public class TestCl extends ProcessAllWindowFunction<ValQ2, ArrayList<ValQ2>, TimeWindow> {
     @Override
-    public void process(ProcessAllWindowFunction<ValQ2, List<ValQ2>, TimeWindow>.Context context, Iterable<ValQ2> iterable, Collector<List<ValQ2>> collector) throws Exception {
+    public void process(ProcessAllWindowFunction<ValQ2, ArrayList<ValQ2>, TimeWindow>.Context context, Iterable<ValQ2> iterable, Collector<ArrayList<ValQ2>> collector) throws Exception {
         Long end = context.window().getEnd();
         Long start = context.window().getStart();
         System.out.printf("WINDOW: (%s,%s)\n", new Timestamp(start),new Timestamp(end));
-        var top = utils.Tools.getTopFiveLocations(iterable);
-        collector.collect(top);
+
+
+        var l = new ArrayList<ValQ2>();
+        iterable.forEach(r->l.add(r));
+        collector.collect(l);
     }
 }

@@ -48,7 +48,7 @@ public class Producer {
                         diff = (timestamp.getTime() - previous.getTime()) / Config.SPEEDING_FACTOR;
                     } catch (SimulationTimeException e) {
                         e.printStackTrace();
-                        diff = 10;
+                        diff = 0;
                     }
                     Thread.sleep(diff);
                 }
@@ -63,7 +63,7 @@ public class Producer {
 
     static void validateTime(Timestamp actual, Timestamp previous) throws SimulationTimeException {
         long diff = (actual.getTime() - previous.getTime());
-        if (diff <= 0) {
+        if (diff < 0) {
             throw new SimulationTimeException("Producer Error: Timestamp out of Order");
         }
     }

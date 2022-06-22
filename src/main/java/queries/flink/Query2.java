@@ -60,9 +60,12 @@ public class Query2 extends Query {
 //        var keyed = src.keyBy(event -> event.getLocation());
 
         var mapped = src.map(e->new ValQ2(Tools.getSecondsSlot(e.getTimestamp(),10),e.getLocation(),e.getTemperature(),1L));
+//        mapped.windowAll(TumblingEventTimeWindows.of(Time.seconds(10))).process(new TestCl()).print();
 
         var keyed    = mapped.keyBy(e -> e.getLocation());
-        keyed.print();
+//        keyed.windowAll(TumblingEventTimeWindows.of(Time.seconds(10))).process(new TestCl()).print();
+//        keyed.print();
+
 
         var reduced = keyed.reduce(new ReduceFunction<ValQ2>() {
                     @Override
@@ -76,6 +79,9 @@ public class Query2 extends Query {
                         return v;
                     }
                 });
+        reduced.print();
+//        reduced.windowAll(TumblingEventTimeWindows.of(Time.seconds(10))).process(new TestCl()).print();
+
 //        reduced.print();
 
         var mean = reduced.map(new MapFunction<ValQ2, ValQ2>() {
@@ -89,9 +95,9 @@ public class Query2 extends Query {
                     }
                 });
 
-        var window= mean.windowAll(TumblingEventTimeWindows.of(Time.seconds(10  )));
+        var window= mean.windowAll(TumblingEventTimeWindows.of(Time.seconds(10)));
         var processed = window.process(new TopAll());
-        processed.print();
+//        processed.print();
 
 //                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
 //                .process(new Top());

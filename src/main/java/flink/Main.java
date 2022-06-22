@@ -23,14 +23,10 @@ public class Main {
                 .setValueOnlyDeserializer(new CustomDeserializer())
                 .build();
 
+        // BIBBIA
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> {
-                    var ts = event.getTimestamp().getTime();
-                    System.out.println(event);
-                    System.out.println(ts);
-                            return ts;
-                }),
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
                 "Kafka Source");
 
         var q1 = new Query1(env,src);
