@@ -10,10 +10,8 @@ import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsIni
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.ExecutionCheckpointingOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import queries.flink.Query1;
-import utils.ValQ1;
+import queries.flink.Query2;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +21,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        KafkaSource<Event> source = KafkaSource.<Event>builder()
 
         // start a checkpoint every 30s
         env.enableCheckpointing(30000);
@@ -43,16 +42,25 @@ public class Main {
 
         env.configure(config);
 
-        KafkaSource<String> source = KafkaSource.<String>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer(new SimpleStringSchema())
+//                .setUnbounded(OffsetsInitializer.latest())
+                .setValueOnlyDeserializer(new CustomDeserializer())
                 .build();
-        var src = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+
+        var src = env.fromSource(source, WatermarkStrategy
+                .<Event>forMonotonousTimestamps()
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime())
+                        .withIdleness(Duration.ofMinutes(1)),
+                "Kafka Source");
+
 
         var q1 = new Query1(env,src);
+        var q2 = new Query2(env, src);
         q1.execute();
+//        q2.execute();
+
     }
 }

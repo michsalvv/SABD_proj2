@@ -1,5 +1,8 @@
 package queries.flink;
 
+import flink.Event;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
+import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
@@ -20,34 +23,28 @@ import java.util.concurrent.TimeUnit;
 
 public class Query1 extends Query {
     StreamExecutionEnvironment env;
-    DataStreamSource<String> src;
+    DataStreamSource<Event> src;
 
-
-    public Query1(StreamExecutionEnvironment env, DataStreamSource<String> src) {
+    public Query1(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
         this.src = src;
     }
 
-    //TODO Fare un serializzatore vero
     @Override
     public void execute() throws Exception {
         String outputPath = "q1-res";
 
         var dataStream = src
-                .map(values -> Tuple2.of(ValQ1.create(values), 1))
-                .returns(Types.TUPLE(Types.GENERIC(ValQ1.class), Types.INT))
-                .filter(values -> values.f0.getSensor_id() < 10000)
-                .assignTimestampsAndWatermarks(WatermarkStrategy
-                        .<Tuple2<ValQ1, Integer>>forMonotonousTimestamps()                   // Assumiamo il dataset ordinato
-                        .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
-                        .withIdleness(Duration.ofMinutes(1))
-                        )
-                .keyBy(values -> values.f0.getSensor_id())
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .aggregate(new Average());
-        dataStream.print();
+                .filter(event -> event.getSensor_id() < 10000)
+                .keyBy(Event::getSensor_id)
+                .window(TumblingEventTimeWindows.of(Time.minutes(60), Time.seconds(30)))
+                .allowedLateness(Time.minutes(2))                                           // funziona
+                .aggregate(new Average())
+                .setParallelism(2);
 
-        final StreamingFileSink<ValQ1> sink = StreamingFileSink
+        dataStream.print();
+      
+       final StreamingFileSink<ValQ1> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
@@ -56,8 +53,7 @@ public class Query1 extends Query {
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
                 .build();
-
         dataStream.addSink(sink);
-        env.execute("Kafka Connector Demo");
+        env.execute("Query 1");
     }
 }
