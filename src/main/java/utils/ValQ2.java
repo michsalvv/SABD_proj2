@@ -18,6 +18,13 @@ public class ValQ2 implements Serializable {
         this.location = location;
     }
 
+    public ValQ2(Timestamp timestamp, Long location, Double temperature, Long occurrences) {
+        this.timestamp = timestamp;
+        this.temperature = temperature;
+        this.location = location;
+        this.occurrences = occurrences;
+    }
+
     public ValQ2() {
     }
 
