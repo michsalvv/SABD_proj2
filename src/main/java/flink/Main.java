@@ -36,7 +36,7 @@ public class Main {
         // allow only one checkpoint to be in progress at the same time
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         // sets the checkpoint storage where checkpoint snapshots will be written
-        env.getCheckpointConfig().setCheckpointStorage("hdfs://namenode:54310/flink-checkpoints");
+        env.getCheckpointConfig().setCheckpointStorage("file:///opt/flink/flink-checkpoints");
         // enable checkpointing with finished tasks
         Configuration config = new Configuration();
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);

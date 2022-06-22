@@ -2,7 +2,6 @@ package queries.flink;
 
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import queries.flink.aggregate.Average;
@@ -32,7 +31,7 @@ public class Query1 extends Query {
     //TODO Fare un serializzatore vero
     @Override
     public void execute() throws Exception {
-        String outputPath = "query1.csv";
+        String outputPath = "q1-res";
 
         var dataStream = src
                 .map(values -> Tuple2.of(ValQ1.create(values), 1))
@@ -48,22 +47,16 @@ public class Query1 extends Query {
                 .aggregate(new Average());
         dataStream.print();
 
-        OutputFileConfig config = OutputFileConfig
-                .builder()
-                .withPartPrefix("part")
-                .withPartSuffix(".inprogress")
-                .build();
-
         final StreamingFileSink<ValQ1> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
                                 .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
-                .withOutputFileConfig(config)
                 .build();
+
         dataStream.addSink(sink);
         env.execute("Kafka Connector Demo");
     }
