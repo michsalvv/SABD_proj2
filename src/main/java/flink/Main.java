@@ -32,8 +32,8 @@ public class Main {
 
         var q1 = new Query1(env,src);
         var q2 = new Query2(env, src);
-        q1.execute();
-//        q2.execute();
+//        q1.execute();
+        q2.execute();
 
     }
 }

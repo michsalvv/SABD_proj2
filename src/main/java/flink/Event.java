@@ -1,5 +1,6 @@
 package flink;
 
+import utils.Tools;
 import utils.ValQ1;
 
 import java.io.Serializable;
@@ -19,11 +20,7 @@ public class Event implements Serializable {
         var values = rawMessage.split(";");
         this.timestamp = Timestamp.valueOf(values[0]);
         this.sensor_id = Long.parseLong(values[1]);
-        try {
-            this.temperature = NumberFormat.getInstance(Locale.getDefault()).parse(values[2]).doubleValue();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        this.temperature = Tools.stringToDouble(values[2]);
         this.location = Long.parseLong(values[3]);
     }
 

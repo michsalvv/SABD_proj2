@@ -36,20 +36,8 @@ public class Average implements AggregateFunction<Event, AverageAccumulator, Val
         result.setSensor_id(acc.sensor_id);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(getHourSlot(acc.last_timestamp));
+        result.setTimestamp(utils.Tools.getHourSlot(acc.last_timestamp));
         return result;
-    }
-
-    public Timestamp getHourSlot(Timestamp timestamp){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp);
-        int year = timestamp.toLocalDateTime().getYear();
-        int hour = timestamp.toLocalDateTime().getHour();
-        int month = timestamp.toLocalDateTime().getMonthValue();
-        int day = timestamp.toLocalDateTime().getDayOfMonth();
-
-        String ts = String.format("%d-%02d-%02d %02d:00:00", year, month, day, hour );
-      return Timestamp.valueOf(ts);
     }
 
 

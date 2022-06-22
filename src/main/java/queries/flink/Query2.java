@@ -11,6 +11,7 @@ package queries.flink;
 import flink.Event;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -25,8 +26,10 @@ import org.apache.flink.util.Collector;
 import queries.Query;
 import queries.flink.aggregate.Average2;
 import queries.flink.process.Top;
+import utils.Tools;
 import utils.ValQ2;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 
 public class Query2 extends Query {
@@ -53,10 +56,48 @@ public class Query2 extends Query {
 //                .aggregate(new Average2(), new Top());
 //                .aggregate(new Average2());
 
-//        var datastream = src
-//                .keyBy(event -> event.getLocation())
-//                        .window(TumblingEventTimeWindows.of)
-//        dataStream.print();
+//        var dataStream = src
+//        var keyed = src.keyBy(event -> event.getLocation());
+
+        var mapped = src.map(e->new ValQ2(Tools.getSecondsSlot(e.getTimestamp(),5),e.getLocation(),e.getTemperature(),1L));
+
+        var keyed = mapped.keyBy(e -> e.getLocation());
+//        keyed.print();
+
+        var reduced = keyed.reduce(new ReduceFunction<ValQ2>() {
+                    @Override
+                    public ValQ2 reduce(ValQ2 v1, ValQ2 v2) throws Exception {
+                        ValQ2 v = new ValQ2();
+                        Timestamp ts = Tools.getSecondsSlot(v1.getTimestamp(),10);
+                        v.setTemperature(v1.getTemperature()+ v2.getTemperature());
+                        v.setOccurrences(v1.getOccurrences()+ v2.getOccurrences());
+                        v.setLocation(v1.getLocation());
+                        v.setTimestamp(ts);
+                        return v;
+                    }
+                });
+//        reduced.print();
+
+        var mean = reduced.map(new MapFunction<ValQ2, ValQ2>() {
+                    @Override
+                    public ValQ2 map(ValQ2 v) throws Exception {
+                        Double temp = v.getTemperature();
+                        Long occur = v.getOccurrences();
+                        Double mean = temp/occur;
+                        v.setTemperature(mean);
+                        return v;
+                    }
+                });
+
+        var window= mean.windowAll(TumblingEventTimeWindows.of(Time.seconds(5))).allowedLateness(Time.seconds(5));
+        var processed = window.process(new TopAll());
+        processed.print();
+
+//                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+//                .process(new Top());
+//                .aggregate(new Average2());
+//                .aggregate(new Average2());
+
         env.execute("Query 2");
     }
 }
