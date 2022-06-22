@@ -21,7 +21,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        KafkaSource<Event> source = KafkaSource.<Event>builder()
 
         // start a checkpoint every 30s
         env.enableCheckpointing(30000);
@@ -41,7 +40,7 @@ public class Main {
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
 
         env.configure(config);
-
+        KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
                 .setGroupId("my-group")
