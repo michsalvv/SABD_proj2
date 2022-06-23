@@ -15,12 +15,6 @@ public class Tools {
         return Double.parseDouble(r);
     }
 
-    public static Tuple2<List<ValQ2>,List<ValQ2>> getLocationsRanking(Iterable<ValQ2> list) {
-        List<ValQ2> high = new ArrayList<>();
-        List<Long> highIds = new ArrayList<>();
-        List<ValQ2> low = new ArrayList<>();
-        List<Long> lowIds = new ArrayList<>();
-    // es. 40° appartiene a (30°, 45°) = (first, last)
     public static boolean inRange(Double val, Double first, Double last) {
         if (Double.compare(val, first) >= 0 && Double.compare(val, last) <= 0) {
             return true;
@@ -28,12 +22,11 @@ public class Tools {
         return false;
     }
 
-    public static List<ValQ2> getTopFiveLocations(Iterable<ValQ2> list) {
-        System.out.println("ELEMENTS:");
-        list.forEach(r-> System.out.println(r));
-
-        List<ValQ2> top = new ArrayList<>();
-        List<Long> topId = new ArrayList<>();
+    public static Tuple2<List<ValQ2>,List<ValQ2>> getLocationsRanking(Iterable<ValQ2> list) {
+        List<ValQ2> high = new ArrayList<>();
+        List<Long> highIds = new ArrayList<>();
+        List<ValQ2> low = new ArrayList<>();
+        List<Long> lowIds = new ArrayList<>();
         int n = 0;
 
         while (n!=5) {

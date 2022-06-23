@@ -97,7 +97,6 @@ public class Query2 extends Query {
 //                .process(new Top());
 //                .aggregate(new Average2());
 //                .aggregate(new Average2());
-*/
         env.execute("Query 2");
     }
 }
