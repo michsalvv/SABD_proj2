@@ -17,7 +17,7 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
             validateTemperature(event.getTemperature());
             return event;
         } catch (SimulationTimeException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }

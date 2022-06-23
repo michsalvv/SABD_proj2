@@ -40,6 +40,7 @@ public class Main {
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
 
         env.configure(config);
+
         KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
@@ -51,18 +52,13 @@ public class Main {
 
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> {
-                    var ts = event.getTimestamp().getTime();
-                    System.out.println(event);
-                    System.out.println(ts);
-                            return ts;
-                }),
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
                 "Kafka Source");
 
         var q1 = new Query1(env,src);
-        var q2 = new Query2(env, src);
-//        q1.execute();
-        q2.execute();
+//        var q2 = new Query2(env, src);
+        q1.execute();
+//        q2.execute();
 
     }
 }

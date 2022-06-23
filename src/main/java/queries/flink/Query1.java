@@ -4,6 +4,7 @@ import flink.Event;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
@@ -43,12 +44,16 @@ public class Query1 extends Query {
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
                 .keyBy(Event::getSensor_id)
-                .window(TumblingEventTimeWindows.of(Time.minutes(60), Time.seconds(30)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new Average())
-                .setParallelism(2);
+                .setParallelism(4);
 
         dataStream.print();
+
+        OutputFileConfig config = OutputFileConfig.builder()
+                .withPartSuffix(".csv")
+                .build();
 
         final StreamingFileSink<ValQ1> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
@@ -58,9 +63,10 @@ public class Query1 extends Query {
                                 .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
+                .withOutputFileConfig(config)
                 .build();
-        dataStream.addSink(sink);
-
+        dataStream.addSink(sink);               // Il sink deve avere parallelismo 1
+    /*
         Properties prop = new Properties();
         prop.setProperty("transaction.timeout.ms", "900000");
 
@@ -78,6 +84,8 @@ public class Query1 extends Query {
                 .build();
 
         dataStream.sinkTo(kafkaSink);
+
+     */
         env.execute("Query 1");
     }
 }
