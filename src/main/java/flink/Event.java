@@ -22,14 +22,6 @@ public class Event implements Serializable {
         var values = rawMessage.split(";");
         this.timestamp = Timestamp.valueOf(values[0]);
         this.sensor_id = Long.parseLong(values[1]);
-        /*
-        try {
-            this.temperature = NumberFormat.getInstance(Locale.getDefault()).parse(values[2]).doubleValue();
-            this.latitude = NumberFormat.getInstance(Locale.getDefault()).parse(values[4]).doubleValue();
-            this.longitude = NumberFormat.getInstance(Locale.getDefault()).parse(values[5]).doubleValue();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }*/
         this.temperature = Tools.stringToDouble(values[2]);
         this.latitude = Tools.stringToDouble(values[4]);
         this.longitude = Tools.stringToDouble(values[5]);

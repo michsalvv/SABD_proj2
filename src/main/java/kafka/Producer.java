@@ -1,6 +1,7 @@
 package kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import kafka.exception.SimulationTimeException;
 import utils.Config;
@@ -22,9 +23,12 @@ public class Producer {
         props.put("bootstrap.servers", "kafka-broker:29092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
         org.apache.kafka.clients.producer.Producer<Object, String> producer = new KafkaProducer<>(props);
+
         boolean first = true;
         Timestamp previous = null;
+
         BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
@@ -51,7 +55,6 @@ public class Producer {
                         diff = (timestamp.getTime() - previous.getTime()) / Config.SPEEDING_FACTOR;
                     } catch (SimulationTimeException e) {
                         e.printStackTrace();
-                        System.exit(0);
                         diff = 0;
                     }
                     Thread.sleep(diff);

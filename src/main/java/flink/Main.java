@@ -50,12 +50,11 @@ public class Main {
                 .setValueOnlyDeserializer(new CustomDeserializer())
                 .build();
 
+        // BIBBIA
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime())
-                        .withIdleness(Duration.ofMinutes(1)),
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
                 "Kafka Source");
-
 
         var q1 = new Query1(env,src);
         var q2 = new Query2(env, src);

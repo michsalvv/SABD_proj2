@@ -67,3 +67,20 @@ public class Query3 extends Query {
         env.execute("Query 3");
     }
 }
+
+/**
+ * Consider the latitude and longitude coordinates
+ * the latitude and longitude coordinates (38 , 2 ) and
+ * within the geographic area which is identified from
+ * • Divide this area using a 4x4 grid and identify each
+ * (58 , 30 ).
+ * grid cell from the top-left to bottom-right corners using
+ * the name "cell_X", where X is the cell id from 0 to 15.
+ * For each cell, find the average and the median
+ * temperature, taking into account the values emitted
+ * from the sensors which are located inside that cell
+ * -------------------------------------------------------------
+ * Q3 output:
+ * ts, cell_0, avg_temp0, med_temp0, ...
+ * cell_15, avg_temp15, med_temp15
+ */
