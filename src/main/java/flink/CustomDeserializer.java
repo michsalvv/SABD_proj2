@@ -37,6 +37,7 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
         return TypeInformation.of(Event.class);
     }
 
+    // La temperatura massima rilevabile del sensore varia da -40° a +85°
     static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
         if (temperature < -40 || temperature > 85) {
             throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
@@ -46,7 +47,8 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
     // LAT Y: 38 - 58
     // LON X: 2  - 30
     static void validateCoordinates(Double latitude, Double longitude) throws CoordinatesOutOfBoundException {
-        if (latitude<38 || latitude>58 || longitude<2 || latitude>30){
+        if (latitude < 38 || latitude > 58 || longitude < 2 || latitude > 30) {
             throw new CoordinatesOutOfBoundException("Coordinate Error: Sensor out of grid");
         }
+    }
 }
