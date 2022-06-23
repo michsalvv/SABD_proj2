@@ -1,13 +1,9 @@
-package flink;
+package flink.deserialize;
 
 import utils.Tools;
-import utils.ValQ1;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
 
 public class Event implements Serializable {
     //TODO mettere tutti i campi del dataset

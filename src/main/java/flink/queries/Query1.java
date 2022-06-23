@@ -1,31 +1,18 @@
-package queries.flink;
+package flink.queries;
 
-import flink.Event;
-import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
-import org.apache.flink.connector.kafka.sink.KafkaSink;
+import flink.deserialize.Event;
 import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import queries.flink.aggregate.Average;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
+import flink.queries.aggregate.AvgQ1;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import queries.Query;
-import utils.ValQ1;
+import utils.tuples.ValQ1;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class Query1 extends Query {
@@ -47,7 +34,7 @@ public class Query1 extends Query {
                 .keyBy(Event::getSensor_id)
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
-                .aggregate(new Average())
+                .aggregate(new AvgQ1())
                 .setParallelism(4);
 
         dataStream.print();

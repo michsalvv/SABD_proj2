@@ -1,14 +1,13 @@
-package flink;
+package flink.deserialize;
 
-import kafka.exception.SimulationTimeException;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import queries.exception.CoordinatesOutOfBoundException;
-import queries.exception.TemperatureOutOfBoundException;
+import flink.exception.CoordinatesOutOfBoundException;
+import flink.exception.TemperatureOutOfBoundException;
 
 import java.nio.charset.StandardCharsets;
 
-public class CustomDeserializer implements DeserializationSchema<Event> {
+public class EventDeserializer implements DeserializationSchema<Event> {
 
     @Override
     public Event deserialize(byte[] bytes) {

@@ -1,4 +1,6 @@
-package utils;
+package utils.tuples;
+
+import utils.Grid;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

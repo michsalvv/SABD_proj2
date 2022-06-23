@@ -1,4 +1,4 @@
-package queries;
+package flink.queries;
 
 public abstract class Query {
     public abstract void execute() throws Exception;

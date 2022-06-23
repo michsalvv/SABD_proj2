@@ -1,8 +1,8 @@
-package queries.flink.aggregate;
+package flink.queries.aggregate;
 
 import java.sql.Timestamp;
 
-public class AverageAccumulator2 {
+public class AccumulatorQ2 {
     long count;
     double sum;
     long location;

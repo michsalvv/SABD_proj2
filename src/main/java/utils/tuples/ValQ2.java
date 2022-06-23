@@ -1,10 +1,10 @@
-package utils;
+package utils.tuples;
+
+import utils.Tools;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 public class ValQ2 implements Serializable {
     Timestamp timestamp;
@@ -32,7 +32,7 @@ public class ValQ2 implements Serializable {
         var values = rawMessage.split(";");
         return new ValQ2(Timestamp.valueOf(values[0]),
                 Long.parseLong(values[3]),
-                utils.Tools.stringToDouble(values[2]));
+                Tools.stringToDouble(values[2]));
     }
 
     public Timestamp getTimestamp() {

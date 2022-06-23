@@ -15,19 +15,17 @@
  * cell_15, avg_temp15, med_temp15
  */
 
-package queries.flink;
+package flink.queries;
 
-import flink.Event;
-import org.apache.flink.api.common.functions.FilterFunction;
+import flink.deserialize.Event;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import queries.Query;
 import scala.Tuple3;
 import utils.Config;
 import utils.Grid;
 import utils.Tools;
-import utils.ValQ3;
+import utils.tuples.ValQ3;
 
 import java.util.List;
 
@@ -52,11 +50,6 @@ public class Query3 extends Query {
         // this means that top-left = (58°,2°) and bottom_right = (38°,30°)
         Grid grid = new Grid(lat1, lon1, lat2, lon2, Config.SPLIT_FACTOR);
         List<Tuple3<Integer, Grid.Vertex, Grid.Vertex>> cells = grid.split();
-        for(int i = 0; i < Config.NUM_AREAS; i++) {
-            System.out.println("Cell_ID: " + cells.get(i)._1());
-            System.out.println("Top_left: (" + cells.get(i)._2().getLat() + " " + cells.get(i)._2().getLon() + ")");
-            System.out.println("Bottom_right: (" + cells.get(i)._3().getLat() + " " + cells.get(i)._3().getLon() + ")");;
-        }
 
         var dataStream = src
                 .map((MapFunction<Event, ValQ3>) event -> {

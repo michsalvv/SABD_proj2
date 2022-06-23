@@ -1,6 +1,7 @@
 package utils;
 
 import org.apache.flink.api.java.tuple.Tuple2;
+import utils.tuples.ValQ2;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

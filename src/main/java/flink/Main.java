@@ -1,21 +1,17 @@
 package flink;
 
+import flink.deserialize.EventDeserializer;
+import flink.deserialize.Event;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.ExecutionCheckpointingOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import queries.flink.Query1;
-import queries.flink.Query2;
-import queries.flink.Query3;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import flink.queries.Query1;
+import flink.queries.Query2;
+import flink.queries.Query3;
 
 public class Main {
     //TODO Fare un serializzatore vero
@@ -47,7 +43,7 @@ public class Main {
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
 //                .setUnbounded(OffsetsInitializer.latest())
-                .setValueOnlyDeserializer(new CustomDeserializer())
+                .setValueOnlyDeserializer(new EventDeserializer())
                 .build();
 
         // BIBBIA
