@@ -3,12 +3,13 @@ package queries.flink.aggregate;
 import flink.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
+import utils.OutputQuery;
 import utils.ValQ1;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-public class Average implements AggregateFunction<Event, AverageAccumulator, ValQ1> {
+public class Average implements AggregateFunction<Event, AverageAccumulator, OutputQuery> {
     public AverageAccumulator createAccumulator() {
         return new AverageAccumulator();
     }

@@ -1,9 +1,11 @@
 package queries.flink;
 
 import flink.Event;
+import org.apache.flink.api.common.serialization.Encoder;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.impl.CsvEncoder;
 import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
@@ -21,8 +23,12 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import queries.Query;
+import utils.CSVEncoder;
+import utils.OutputQuery;
 import utils.ValQ1;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Properties;
@@ -45,7 +51,7 @@ public class Query1 extends Query {
                 .filter(event -> event.getSensor_id() < 10000)
                 .setParallelism(2)
                 .keyBy(Event::getSensor_id)
-                .window(TumblingEventTimeWindows.of(Time.minutes(10)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new Average())
                 .setParallelism(4);
@@ -56,8 +62,8 @@ public class Query1 extends Query {
                 .withPartSuffix(".csv")
                 .build();
 
-        final StreamingFileSink<ValQ1> sink = StreamingFileSink
-                .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
+        final StreamingFileSink<OutputQuery> sink = StreamingFileSink
+                .forRowFormat(new Path(outputPath), new CSVEncoder())
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
                                 .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
@@ -67,7 +73,10 @@ public class Query1 extends Query {
                 .withOutputFileConfig(config)
                 .build();
         dataStream.addSink(sink);               // Il sink deve avere parallelismo 1
-    /*
+
+
+        /*
+        SE CI CHIEDE DI SCRIVE SU KAFKA IL RISULTATO STA GIA FATTO QUA NON CANCELLARE T'AMMAZZO
         Properties prop = new Properties();
         prop.setProperty("transaction.timeout.ms", "900000");
 
