@@ -36,22 +36,7 @@ public class Average2 implements AggregateFunction<Event, AverageAccumulator2, V
         result.setLocation(acc.location);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(getHourSlot(acc.last_timestamp));
+        result.setTimestamp(utils.Tools.getSecondsSlot(acc.last_timestamp,5));
         return result;
     }
-
-    public Timestamp getHourSlot(Timestamp timestamp){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp);
-        int year = timestamp.toLocalDateTime().getYear();
-        int hour = timestamp.toLocalDateTime().getHour();
-        int month = timestamp.toLocalDateTime().getMonthValue();
-        int day = timestamp.toLocalDateTime().getDayOfMonth();
-
-        String ts = String.format("%d-%02d-%02d %02d:00:00", year, month, day, hour );
-      return Timestamp.valueOf(ts);
-    }
-
-
-
 }

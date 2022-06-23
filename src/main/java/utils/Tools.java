@@ -15,34 +15,46 @@ public class Tools {
         return Double.parseDouble(r);
     }
 
-    public static List<ValQ2> getTopFiveLocations(Iterable<ValQ2> list) {
-        List<ValQ2> top = new ArrayList<>();
-        List<Long> topId = new ArrayList<>();
+    public static Tuple2<List<ValQ2>,List<ValQ2>> getLocationsRanking(Iterable<ValQ2> list) {
+        List<ValQ2> high = new ArrayList<>();
+        List<Long> highIds = new ArrayList<>();
+        List<ValQ2> low = new ArrayList<>();
+        List<Long> lowIds = new ArrayList<>();
         int n = 0;
 
         while (n!=5) {
             Iterator<ValQ2> iterator = list.iterator();
             ValQ2 max = null;
-            Double maxVal = 0D;
+            Double maxVal = -999999D;
             Long maxId = 0L;
 
-            while (iterator.hasNext()) {
-                ValQ2 element = iterator.next();
+            ValQ2 min = null;
+            Double minVal = 999999D;
+            Long minId = 0L;
 
-                ValQ2 actual = element;
+            while (iterator.hasNext()) {
+                ValQ2 actual = iterator.next();
+
                 Double actualVal = actual.getTemperature();
                 Long actualId = actual.getLocation();
-                if (actualVal >= maxVal && !topId.contains(actualId)) {
+                if (actualVal >= maxVal && !highIds.contains(actualId)) {
                     maxVal = actualVal;
                     max = actual;
                     maxId = actualId;
                 }
+                if (actualVal <= minVal && !lowIds.contains(actualId)) {
+                    minVal = actualVal;
+                    min = actual;
+                    minId = actualId;
+                }
             }
             n++;
-            topId.add(maxId);
-            top.add(max);
+            highIds.add(maxId);
+            high.add(max);
+            lowIds.add(minId);
+            low.add(min);
         }
-        return top;
+        return new Tuple2<>(high,low);
     }
 
     public static Timestamp getHourSlot(Timestamp timestamp){

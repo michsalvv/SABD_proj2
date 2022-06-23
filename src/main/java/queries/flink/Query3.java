@@ -1,42 +1,35 @@
 /**
- * Find the real-time top-5 ranking of locations (location) having the highest average temperature
- * and the top-5 ranking of locations (location) having the lowest average temperature
- * --------------------------------------------------------------------------------------
- * Q2 output:
- * ts, location1, avg_temp1, ... location5, avg_temp5, location6, avg
+ * Consider the latitude and longitude coordinates
+ * within the geographic area which is identified from
+ * the latitude and longitude coordinates (38 , 2 ) and
+ * (58 , 30 ).
+ * • Divide this area using a 4x4 grid and identify each
+ * grid cell from the top-left to bottom-right corners using
+ * the name "cell_X", where X is the cell id from 0 to 15.
+ * For each cell, find the average and the median
+ * temperature, taking into account the values emitted
+ * from the sensors which are located inside that cell
+ * -------------------------------------------------------------
+ * Q3 output:
+ * ts, cell_0, avg_temp0, med_temp0, ...
+ * cell_15, avg_temp15, med_temp15
  */
 
 package queries.flink;
 
 import flink.Event;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.util.Collector;
 import queries.Query;
 import queries.flink.aggregate.Average2;
-import queries.flink.process.Top;
-import utils.Tools;
-import utils.ValQ2;
 
-import java.sql.Timestamp;
-import java.time.Duration;
-
-public class Query2 extends Query {
+public class Query3 extends Query {
     StreamExecutionEnvironment env;
     DataStreamSource<Event> src;
 
-    public Query2(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
+    public Query3(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
         this.src = src;
     }
