@@ -37,11 +37,14 @@ public class Producer {
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
                 var date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(values[5]);
-                var location = Long.parseLong(values[2]);
                 Timestamp timestamp = new Timestamp(date.getTime());
                 Long sensor_id = Long.parseLong(values[0]);
                 Double temperature = Double.parseDouble(values[9]);
-                var message = String.format("%s;%d;%,.4f;%d", timestamp, sensor_id, temperature, location);
+                Long location = Long.parseLong(values[2]);
+                Double latitude = Double.parseDouble(values[3]);
+                Double longitude = Double.parseDouble(values[4]);
+                var message = String.format("%s;%d;%,.4f;%d;%,.4f;%,.4f;", timestamp, sensor_id, temperature,
+                        location, latitude, longitude);
                 var producerRecord = new ProducerRecord<>("flink-events", message);
                 if (first) {
                     first = false;
@@ -57,7 +60,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-//                System.out.printf("Send: %s%n", message);
+                //System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }

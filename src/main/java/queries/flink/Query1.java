@@ -43,6 +43,7 @@ public class Query1 extends Query {
 
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
+                .setParallelism(2)
                 .keyBy(Event::getSensor_id)
                 .window(TumblingEventTimeWindows.of(Time.minutes(10)))
                 .allowedLateness(Time.minutes(2))                                           // funziona

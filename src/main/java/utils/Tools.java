@@ -15,7 +15,23 @@ public class Tools {
         return Double.parseDouble(r);
     }
 
+    public static Tuple2<List<ValQ2>,List<ValQ2>> getLocationsRanking(Iterable<ValQ2> list) {
+        List<ValQ2> high = new ArrayList<>();
+        List<Long> highIds = new ArrayList<>();
+        List<ValQ2> low = new ArrayList<>();
+        List<Long> lowIds = new ArrayList<>();
+    // es. 40° appartiene a (30°, 45°) = (first, last)
+    public static boolean inRange(Double val, Double first, Double last) {
+        if (Double.compare(val, first) >= 0 && Double.compare(val, last) <= 0) {
+            return true;
+        }
+        return false;
+    }
+
     public static List<ValQ2> getTopFiveLocations(Iterable<ValQ2> list) {
+        System.out.println("ELEMENTS:");
+        list.forEach(r-> System.out.println(r));
+
         List<ValQ2> top = new ArrayList<>();
         List<Long> topId = new ArrayList<>();
         int n = 0;
@@ -23,26 +39,36 @@ public class Tools {
         while (n!=5) {
             Iterator<ValQ2> iterator = list.iterator();
             ValQ2 max = null;
-            Double maxVal = 0D;
+            Double maxVal = -999999D;
             Long maxId = 0L;
 
-            while (iterator.hasNext()) {
-                ValQ2 element = iterator.next();
+            ValQ2 min = null;
+            Double minVal = 999999D;
+            Long minId = 0L;
 
-                ValQ2 actual = element;
+            while (iterator.hasNext()) {
+                ValQ2 actual = iterator.next();
+
                 Double actualVal = actual.getTemperature();
                 Long actualId = actual.getLocation();
-                if (actualVal >= maxVal && !topId.contains(actualId)) {
+                if (actualVal >= maxVal && !highIds.contains(actualId)) {
                     maxVal = actualVal;
                     max = actual;
                     maxId = actualId;
                 }
+                if (actualVal <= minVal && !lowIds.contains(actualId)) {
+                    minVal = actualVal;
+                    min = actual;
+                    minId = actualId;
+                }
             }
             n++;
-            topId.add(maxId);
-            top.add(max);
+            highIds.add(maxId);
+            high.add(max);
+            lowIds.add(minId);
+            low.add(min);
         }
-        return top;
+        return new Tuple2<>(high,low);
     }
 
     public static Timestamp getHourSlot(Timestamp timestamp){
