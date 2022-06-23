@@ -43,18 +43,6 @@ public class Query2 extends Query {
 
     @Override
     public void execute() throws Exception {
-//        var dataStream = src
-//                .map(values -> Tuple2.of(ValQ2.create(values), 1))
-//                .returns(Types.TUPLE(Types.GENERIC(ValQ2.class), Types.INT))
-//                .assignTimestampsAndWatermarks(WatermarkStrategy
-//                        .<Tuple2<ValQ2, Integer>>forBoundedOutOfOrderness(Duration.ofMinutes(1))                          // Assumiamo il dataset ordinato
-//                        .withTimestampAssigner((tuple, timestamp) -> tuple.f0.getTimestamp().getTime())
-//                        .withIdleness(Duration.ofMinutes(1)))
-//
-//                .keyBy(values -> values.f0.getLocation())
-//                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-//                .aggregate(new Average2(), new Top());
-//                .aggregate(new Average2());
 
 //        var dataStream = src
         var keyed = src.keyBy(event -> event.getLocation());
@@ -109,7 +97,7 @@ public class Query2 extends Query {
 //                .process(new Top());
 //                .aggregate(new Average2());
 //                .aggregate(new Average2());
-
+*/
         env.execute("Query 2");
     }
 }
