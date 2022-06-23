@@ -17,7 +17,7 @@ public class EventDeserializer implements DeserializationSchema<Event> {
             validateCoordinates(event.getLatitude(),event.getLongitude());
             return event;
         } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }

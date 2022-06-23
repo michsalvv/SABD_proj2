@@ -29,7 +29,7 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.ULTRA_REDUCED_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.REDUCED_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {

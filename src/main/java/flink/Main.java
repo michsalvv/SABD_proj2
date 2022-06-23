@@ -2,6 +2,7 @@ package flink;
 
 import flink.deserialize.EventDeserializer;
 import flink.deserialize.Event;
+import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -14,6 +15,7 @@ import flink.queries.Query2;
 import flink.queries.Query3;
 
 public class Main {
+    static Query query;
     //TODO Fare un serializzatore vero
     public static void main(String[] args) throws Exception {
 
@@ -52,11 +54,27 @@ public class Main {
                 .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
                 "Kafka Source");
 
-        var q1 = new Query1(env,src);
-        var q2 = new Query2(env, src);
-        var q3 = new Query3(env, src);
-//        q1.execute();
-//        q2.execute();
-        q3.execute();
+        Query q1 = new Query1(env,src);
+        Query q2 = new Query2(env, src);
+        Query q3 = new Query3(env, src);
+
+        switch (args[0]) {
+            case ("Q1"):
+                query = q1;
+                break;
+            case ("Q2"):
+                query=q2;
+                break;
+            case ("Q3"):
+                query=q3;
+                break;
+            case ("Q1S"):
+//                query=q1SQL;
+                break;
+            case ("Q2S"):
+//                query=q2SQL;
+                break;
+        }
+        query.execute();
     }
 }
