@@ -12,6 +12,7 @@ import org.apache.flink.streaming.api.environment.ExecutionCheckpointingOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import queries.flink.Query1;
 import queries.flink.Query2;
+import queries.flink.Query3;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +22,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        KafkaSource<Event> source = KafkaSource.<Event>builder()
 
         // start a checkpoint every 30s
         env.enableCheckpointing(30000);
@@ -41,7 +41,7 @@ public class Main {
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
 
         env.configure(config);
-
+        KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
                 .setGroupId("my-group")
@@ -59,8 +59,9 @@ public class Main {
 
         var q1 = new Query1(env,src);
         var q2 = new Query2(env, src);
-        q1.execute();
+        var q3 = new Query3(env, src);
+//        q1.execute();
 //        q2.execute();
-
+        q3.execute();
     }
 }

@@ -13,6 +13,14 @@ public class Tools {
         return Double.parseDouble(r);
     }
 
+    // es. 40° appartiene a (30°, 45°) = (first, last)
+    public static boolean inRange(Double val, Double first, Double last) {
+        if (Double.compare(val, first) >= 0 && Double.compare(val, last) <= 0) {
+            return true;
+        }
+        return false;
+    }
+
     public static List<ValQ2> getTopFiveLocations(Iterable<ValQ2> list) {
         System.out.println("ELEMENTS:");
         list.forEach(r-> System.out.println(r));

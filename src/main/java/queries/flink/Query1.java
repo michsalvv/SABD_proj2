@@ -36,15 +36,16 @@ public class Query1 extends Query {
 
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
+                .setParallelism(2)
                 .keyBy(Event::getSensor_id)
                 .window(TumblingEventTimeWindows.of(Time.minutes(60), Time.seconds(30)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new Average())
                 .setParallelism(2);
 
-        dataStream.print();
+        //dataStream.print();
       
-       final StreamingFileSink<ValQ1> sink = StreamingFileSink
+        final StreamingFileSink<ValQ1> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
