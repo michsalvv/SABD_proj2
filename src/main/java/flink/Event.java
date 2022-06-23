@@ -15,12 +15,16 @@ public class Event implements Serializable {
     private Long sensor_id;
     private Double temperature;
     private Long location;
+    private Double latitude;
+    private Double longitude;
 
-    public Event(String rawMessage){
+    public Event(String rawMessage) {
         var values = rawMessage.split(";");
         this.timestamp = Timestamp.valueOf(values[0]);
         this.sensor_id = Long.parseLong(values[1]);
         this.temperature = Tools.stringToDouble(values[2]);
+        this.latitude = Tools.stringToDouble(values[4]);
+        this.longitude = Tools.stringToDouble(values[5]);
         this.location = Long.parseLong(values[3]);
     }
 
@@ -31,6 +35,8 @@ public class Event implements Serializable {
                 ", sensor_id=" + sensor_id +
                 ", temperature=" + temperature +
                 ", location=" + location +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 '}';
     }
     public Timestamp getTimestamp() {
@@ -64,4 +70,12 @@ public class Event implements Serializable {
     public void setLocation(Long location) {
         this.location = location;
     }
+
+    public Double getLatitude() { return latitude; }
+
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

@@ -12,6 +12,7 @@ import org.apache.flink.streaming.api.environment.ExecutionCheckpointingOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import queries.flink.Query1;
 import queries.flink.Query2;
+import queries.flink.Query3;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,6 @@ public class Main {
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
 
         env.configure(config);
-
         KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
@@ -57,9 +57,10 @@ public class Main {
                 "Kafka Source");
 
         var q1 = new Query1(env,src);
-//        var q2 = new Query2(env, src);
-        q1.execute();
+        var q2 = new Query2(env, src);
+        var q3 = new Query3(env, src);
+//        q1.execute();
 //        q2.execute();
-
+        q3.execute();
     }
 }

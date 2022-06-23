@@ -21,12 +21,6 @@ public class ValQ1 implements Serializable {
     public ValQ1() {
     }
 
-    public static ValQ1 create(String rawMessage) throws ParseException {
-        var values = rawMessage.split(";");
-        return new ValQ1(Timestamp.valueOf(values[0]), Long.parseLong(values[1]),
-                utils.Tools.stringToDouble(values[2]));
-    }
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
