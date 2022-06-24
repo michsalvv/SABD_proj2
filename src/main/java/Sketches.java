@@ -1,10 +1,7 @@
 import utils.Tools;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Locale;
 
 public class Sketches {
     public static void main(String[] args) throws ParseException {

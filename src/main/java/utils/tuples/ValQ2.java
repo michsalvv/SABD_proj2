@@ -1,26 +1,26 @@
-package utils;
+package utils.tuples;
+
+import utils.Tools;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 
 public class ValQ2 implements Serializable {
     Timestamp timestamp;
     Long location;
-    Double temperature;
+    Double meanTemperature;
     Long occurrences;
 
-    public ValQ2(Timestamp timestamp, Long location, Double temperature) {
+    public ValQ2(Timestamp timestamp, Long location, Double meanTemperature) {
         this.timestamp = timestamp;
-        this.temperature = temperature;
+        this.meanTemperature = meanTemperature;
         this.location = location;
     }
 
-    public ValQ2(Timestamp timestamp, Long location, Double temperature, Long occurrences) {
+    public ValQ2(Timestamp timestamp, Long location, Double meanTemperature, Long occurrences) {
         this.timestamp = timestamp;
-        this.temperature = temperature;
+        this.meanTemperature = meanTemperature;
         this.location = location;
         this.occurrences = occurrences;
     }
@@ -32,7 +32,7 @@ public class ValQ2 implements Serializable {
         var values = rawMessage.split(";");
         return new ValQ2(Timestamp.valueOf(values[0]),
                 Long.parseLong(values[3]),
-                utils.Tools.stringToDouble(values[2]));
+                Tools.stringToDouble(values[2]));
     }
 
     public Timestamp getTimestamp() {
@@ -40,8 +40,8 @@ public class ValQ2 implements Serializable {
     }
 
 
-    public Double getTemperature() {
-        return temperature;
+    public Double getMeanTemperature() {
+        return meanTemperature;
     }
 
     public void setTimestamp(Timestamp timestamp) {
@@ -49,8 +49,8 @@ public class ValQ2 implements Serializable {
     }
 
 
-    public void setTemperature(Double temperature) {
-        this.temperature = temperature;
+    public void setMeanTemperature(Double meanTemperature) {
+        this.meanTemperature = meanTemperature;
     }
 
     public Long getOccurrences() {
@@ -74,7 +74,7 @@ public class ValQ2 implements Serializable {
         return "ValQ2{" +
                 "timestamp=" + timestamp +
                 ", location=" + location +
-                ", temperature=" + temperature +
+                ", temperature=" + meanTemperature +
                 ", occurrences=" + occurrences +
                 '}';
     }

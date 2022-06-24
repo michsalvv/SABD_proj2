@@ -1,14 +1,13 @@
-package flink;
+package flink.deserialize;
 
-import kafka.exception.SimulationTimeException;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import queries.exception.NegativeTemperatureException;
+import flink.exception.CoordinatesOutOfBoundException;
+import flink.exception.TemperatureOutOfBoundException;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 
-public class CustomDeserializer implements DeserializationSchema<Event> {
+public class EventDeserializer implements DeserializationSchema<Event> {
 
     @Override
     public Event deserialize(byte[] bytes) {
@@ -16,7 +15,7 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
         try{
             validateTemperature(event.getTemperature());
             return event;
-        } catch (SimulationTimeException e) {
+        } catch (TemperatureOutOfBoundException e) {
 //            e.printStackTrace();
             return null;
         }
@@ -36,9 +35,10 @@ public class CustomDeserializer implements DeserializationSchema<Event> {
         return TypeInformation.of(Event.class);
     }
 
-    static void validateTemperature(Double temperature) throws SimulationTimeException {
+    // La temperatura massima rilevabile del sensore varia da -40° a +85°
+    static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
         if (temperature < -40 || temperature > 85) {
-            throw new SimulationTimeException("Deserializer Error: Temperature out of Sensor Range");
+            throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
         }
     }
 }

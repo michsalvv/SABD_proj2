@@ -29,11 +29,10 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.ULTRA_REDUCED_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {
-//            Thread.sleep(3000); //DEBUG per vedere valore per valore
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
                 var date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(values[5]);
@@ -60,7 +59,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-                //System.out.printf("Send: %s%n", message);
+//                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }

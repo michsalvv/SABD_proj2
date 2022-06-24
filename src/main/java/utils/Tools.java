@@ -1,6 +1,7 @@
 package utils;
 
-import org.apache.flink.api.java.tuple.Tuple2;
+import utils.tuples.OutputQ2;
+import utils.tuples.ValQ2;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class Tools {
         return false;
     }
 
-    public static Tuple2<List<ValQ2>,List<ValQ2>> getLocationsRanking(Iterable<ValQ2> list) {
+    public static OutputQ2 getLocationsRanking(Iterable<ValQ2> list) {
         List<ValQ2> high = new ArrayList<>();
         List<Long> highIds = new ArrayList<>();
         List<ValQ2> low = new ArrayList<>();
@@ -42,7 +43,7 @@ public class Tools {
             while (iterator.hasNext()) {
                 ValQ2 actual = iterator.next();
 
-                Double actualVal = actual.getTemperature();
+                Double actualVal = actual.getMeanTemperature();
                 Long actualId = actual.getLocation();
                 if (actualVal >= maxVal && !highIds.contains(actualId)) {
                     maxVal = actualVal;
@@ -61,7 +62,7 @@ public class Tools {
             lowIds.add(minId);
             low.add(min);
         }
-        return new Tuple2<>(high,low);
+        return new OutputQ2(high,low);
     }
 
     public static Timestamp getHourSlot(Timestamp timestamp){

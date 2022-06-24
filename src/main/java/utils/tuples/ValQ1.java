@@ -1,28 +1,25 @@
-package utils;
+package utils.tuples;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
 
-public class ValQ1 implements Serializable {
-    Timestamp timestamp;
+public class ValQ1 implements Serializable, OutputQuery {
+    Timestamp slotTimestamp;
     Long sensor_id;
-    Double temperature;
+    Double meanTemperature;
     Long occurrences;
-
+    String header = "ts;sensor_id;count;avg_temperature\n";
     public ValQ1(Timestamp timestamp, Long sensor_id, Double temperature) {
-        this.timestamp = timestamp;
+        this.slotTimestamp = timestamp;
         this.sensor_id = sensor_id;
-        this.temperature = temperature;
+        this.meanTemperature = temperature;
     }
 
     public ValQ1() {
     }
 
     public Timestamp getTimestamp() {
-        return timestamp;
+        return slotTimestamp;
     }
 
     public Long getSensor_id() {
@@ -30,11 +27,11 @@ public class ValQ1 implements Serializable {
     }
 
     public Double getTemperature() {
-        return temperature;
+        return meanTemperature;
     }
 
     public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+        this.slotTimestamp = timestamp;
     }
 
     public void setSensor_id(Long sensor_id) {
@@ -42,7 +39,7 @@ public class ValQ1 implements Serializable {
     }
 
     public void setTemperature(Double temperature) {
-        this.temperature = temperature;
+        this.meanTemperature = temperature;
     }
 
     public Long getOccurrences() {
@@ -56,11 +53,20 @@ public class ValQ1 implements Serializable {
     @Override
     public String toString() {
         return "ValQ1{" +
-                "timestamp=" + timestamp +
+                "timestamp=" + slotTimestamp +
                 ", sensor_id=" + sensor_id +
-                ", temperature=" + temperature +
+                ", temperature=" + meanTemperature +
                 ", occurrences=" + occurrences +
                 '}';
     }
 
+    @Override
+    public String toCSV() {
+        return slotTimestamp+";"+sensor_id+";"+occurrences+";"+meanTemperature;
+    }
+
+    @Override
+    public String getCSVHeader() {
+        return header;
+    }
 }
