@@ -1,6 +1,9 @@
-package utils;
+package utils.grid;
 
+import flink.deserialize.Event;
 import scala.Serializable;
+import utils.Config;
+import utils.Tools;
 import utils.tuples.ValQ3;
 
 import java.util.ArrayList;
@@ -28,20 +31,20 @@ public class Grid implements Serializable {
     //lat1 -> lat2: verso su, lon1 -> lon2: verso destra
     public void split() {
         this.cells = new ArrayList<>(split_factor);
-        Double offset_lat = ((top_left.getLat()- bottom_left.getLat())/split_factor);
+        Double offset_lat = ((top_left.getLat() - bottom_left.getLat()) / split_factor);
 //        System.out.println("lat_per_area: " + offset_lat);
-        Double offset_lon = ((top_right.getLon()- top_left.getLon())/split_factor);
+        Double offset_lon = ((top_right.getLon() - top_left.getLon()) / split_factor);
 //        System.out.println("lon_per_area: " + offset_lon);
         Integer cell_id = 0;
         for (int i = 0; i < split_factor; i++) {
-            Double cell_lat1 = top_left.getLat()-(i*offset_lat);
+            Double cell_lat1 = top_left.getLat() - (i * offset_lat);
             for (int j = 0; j < split_factor; j++) {
-                Double cell_lon1 = top_left.getLon()+(j*offset_lon);
-                Double cell_lat2 = cell_lat1-offset_lat;
-                Double cell_lon2 = cell_lon1+offset_lon;
+                Double cell_lon1 = top_left.getLon() + (j * offset_lon);
+                Double cell_lat2 = cell_lat1 - offset_lat;
+                Double cell_lon2 = cell_lon1 + offset_lon;
                 Cell c = new Cell(cell_id,
-                         new Vertex(cell_lat1, cell_lon1),
-                         new Vertex(cell_lat2, cell_lon2));
+                        new Vertex(cell_lat1, cell_lon1),
+                        new Vertex(cell_lat2, cell_lon2));
                 cells.add(c);
                 cell_id++;
             }
@@ -79,63 +82,17 @@ public class Grid implements Serializable {
     public void setCells(List<Cell> cells) {
         this.cells = cells;
     }
-}
 
-    public class Vertex implements Serializable {
-        Double lat;
-        Double lon;
+    public Cell getCellFromEvent(Event event) {
+        for (int i = 0; i < Config.NUM_AREAS; i++) {
+            Vertex top_left = cells.get(i).getTop_left();
+            Vertex bottom_right = cells.get(i).getBottom_right();
 
-        public Vertex(Double lat, Double lon) {
-            this.lat = lat;
-            this.lon = lon;
+            if (Tools.inRange(event.getLatitude(), bottom_right.getLat(), top_left.getLat())
+                    && Tools.inRange(event.getLongitude(), top_left.getLon(), bottom_right.getLon())) {
+                return cells.get(i);
+            }
         }
-        public Double getLat() {
-            return lat;
-        }
-        public void setLat(Double lat) {
-            this.lat = lat;
-        }
-        public Double getLon() {
-            return lon;
-        }
-        public void setLon(Double lon) {
-            this.lon = lon;
-        }
-    }
-
-    public static class Cell implements Serializable {
-        Integer id;
-        Vertex top_left;
-        Vertex bottom_right;
-
-        public Cell(Integer id, Vertex topLeft, Vertex bottomRight) {
-            this.id = id;
-            this.top_left = topLeft;
-            this.bottom_right = bottomRight;
-        }
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public Vertex getTop_left() {
-            return top_left;
-        }
-
-        public void setTop_left(Vertex top_left) {
-            this.top_left = top_left;
-        }
-
-        public Vertex getBottom_right() {
-            return bottom_right;
-        }
-
-        public void setBottom_right(Vertex bottom_right) {
-            this.bottom_right = bottom_right;
-        }
+        return null;
     }
 }
