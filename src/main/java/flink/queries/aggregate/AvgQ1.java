@@ -3,9 +3,10 @@ package flink.queries.aggregate;
 import flink.deserialize.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Tools;
+import utils.tuples.OutputQuery;
 import utils.tuples.ValQ1;
 
-public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, ValQ1> {
+public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuery> {
     public AccumulatorQ1 createAccumulator() {
         return new AccumulatorQ1();
     }

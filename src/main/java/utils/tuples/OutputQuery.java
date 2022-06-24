@@ -1,4 +1,4 @@
-package utils;
+package utils.tuples;
 
 public interface OutputQuery {
 

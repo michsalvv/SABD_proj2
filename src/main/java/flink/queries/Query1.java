@@ -2,7 +2,6 @@ package flink.queries;
 
 import flink.deserialize.Event;
 import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
-import org.apache.flink.api.common.serialization.SimpleStringEncoder;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
@@ -11,7 +10,8 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import utils.tuples.ValQ1;
+import utils.CSVEncoder;
+import utils.tuples.OutputQuery;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,8 +43,8 @@ public class Query1 extends Query {
                 .withPartSuffix(".csv")
                 .build();
 
-        final StreamingFileSink<ValQ1> sink = StreamingFileSink
-                .forRowFormat(new Path(outputPath), new SimpleStringEncoder<ValQ1>("UTF-8"))
+        final StreamingFileSink<OutputQuery> sink = StreamingFileSink
+                .forRowFormat(new Path(outputPath), new CSVEncoder())
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
                                 .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
@@ -54,26 +54,6 @@ public class Query1 extends Query {
                 .withOutputFileConfig(config)
                 .build();
         dataStream.addSink(sink);               // Il sink deve avere parallelismo 1
-    /*
-        Properties prop = new Properties();
-        prop.setProperty("transaction.timeout.ms", "900000");
-
-        KafkaSink kafkaSink = KafkaSink.builder()
-                .setBootstrapServers("kafka-broker:9092")
-                .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-                .setTransactionalIdPrefix("top")
-                .setRecordSerializer(new KafkaRecordSerializationSchema<Object>() {
-                    @Override
-                    public ProducerRecord<byte[], byte[]> serialize(Object element, KafkaSinkContext context, Long timestamp) {
-                        return new ProducerRecord<>("testTopic", element.toString().getBytes(StandardCharsets.UTF_8));
-                    }
-                })
-                .setKafkaProducerConfig(prop)
-                .build();
-
-        dataStream.sinkTo(kafkaSink);
-
-     */
         env.execute("Query 1");
     }
 }

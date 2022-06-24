@@ -1,7 +1,7 @@
 package utils;
 
 import org.apache.flink.api.common.serialization.Encoder;
-import org.apache.flink.api.common.serialization.SimpleStringEncoder;
+import utils.tuples.OutputQuery;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,7 +14,6 @@ public class CSVEncoder implements Encoder<OutputQuery> {
     @Override
     public void encode(OutputQuery element, OutputStream stream) throws IOException {
         if(first){
-            System.out.println(first);
             stream.write(element.getCSVHeader().getBytes(StandardCharsets.UTF_8));
             first = false;
         }
