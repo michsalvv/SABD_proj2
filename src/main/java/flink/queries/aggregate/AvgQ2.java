@@ -31,9 +31,9 @@ public class AvgQ2 implements AggregateFunction<Event, AccumulatorQ2, ValQ2> {
         double mean = acc.sum / (double) acc.count;
         ValQ2 result = new ValQ2();
         result.setLocation(acc.location);
-        result.setTemperature(mean);
+        result.setMeanTemperature(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(Tools.getSecondsSlot(acc.last_timestamp,5));
+        result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
         return result;
     }
 }

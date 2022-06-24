@@ -59,7 +59,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-                System.out.printf("Send: %s%n", message);
+//                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }
