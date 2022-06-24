@@ -14,9 +14,9 @@ public class EventDeserializer implements DeserializationSchema<Event> {
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
-            validateCoordinates(event.getLatitude(),event.getLongitude());
+//            validateCoordinates(event.getLatitude(),event.getLongitude());
             return event;
-        } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
+        } catch (TemperatureOutOfBoundException  e) {
 //            e.printStackTrace();
             return null;
         }

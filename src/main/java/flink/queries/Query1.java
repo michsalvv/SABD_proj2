@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.CSVEncoder;
+import utils.Config;
 import utils.tuples.OutputQuery;
 
 import java.util.concurrent.TimeUnit;
@@ -30,18 +31,14 @@ public class Query1 extends Query {
 
         var dataStream = src
                 .filter(event -> event.getSensor_id() < 10000)
-                .setParallelism(2)
+//                .setParallelism(2)
                 .keyBy(Event::getSensor_id)
-                .window(TumblingEventTimeWindows.of(Time.minutes(10)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new AvgQ1())
                 .setParallelism(4);
 
         dataStream.print();
-
-        OutputFileConfig config = OutputFileConfig.builder()
-                .withPartSuffix(".csv")
-                .build();
 
         final StreamingFileSink<OutputQuery> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new CSVEncoder())
@@ -51,7 +48,7 @@ public class Query1 extends Query {
                                 .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
-                .withOutputFileConfig(config)
+                .withOutputFileConfig(Config.outputFileConfig)
                 .build();
         dataStream.addSink(sink);               // Il sink deve avere parallelismo 1
         env.execute("Query 1");

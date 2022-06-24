@@ -29,7 +29,7 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.REDUCED_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {
@@ -59,7 +59,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-                System.out.printf("Send: %s%n", message);
+//                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }
