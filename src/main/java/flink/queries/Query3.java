@@ -18,13 +18,15 @@
 package flink.queries;
 
 import flink.deserialize.Event;
+import flink.queries.aggregate.AvgQ3;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import scala.Tuple3;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.Config;
-import utils.Grid;
-import utils.Tools;
+import utils.grid.Cell;
+import utils.grid.Grid;
 import utils.tuples.ValQ3;
 
 import java.util.List;
@@ -49,30 +51,32 @@ public class Query3 extends Query {
         // construct 4x4 grid defined by the two points: (lat, lon) = (38°,2°) - (58°,30°)
         // this means that top-left = (58°,2°) and bottom_right = (38°,30°)
         Grid grid = new Grid(lat1, lon1, lat2, lon2, Config.SPLIT_FACTOR);
-        List<Tuple3<Integer, Grid.Vertex, Grid.Vertex>> cells = grid.split();
 
         var dataStream = src
-                .map((MapFunction<Event, ValQ3>) event -> {
-                    for (int i = 0; i < Config.NUM_AREAS; i++) {
-                        Integer cell_id = cells.get(i)._1();
-                        Grid.Vertex top_left = cells.get(i)._2();
-                        Grid.Vertex bottom_right = cells.get(i)._3();
-                        if (Tools.inRange(event.getLatitude(), bottom_right.getLat(), top_left.getLat())
-                                && Tools.inRange(event.getLongitude(), top_left.getLon(), bottom_right.getLon())) {
-                            //System.out.println("Sensor " + event.getSensor_id() + " is in cell:" + cell_id);
-                            return new ValQ3(event.getTimestamp(), event.getSensor_id(), event.getLatitude(), event.getLongitude(),
-                                    event.getTemperature(), event.getTemperature(), cell_id, top_left, bottom_right);
-                        }
-                    }
-                    //discard sensor not located in the grid
-                    return new ValQ3(-1);
-                })
-                .setParallelism(1);
-        dataStream.print();
+                .filter(event -> validateCoordinates(event.getLatitude(),event.getLongitude()));
 
-        // poi famo la keyBy, window e l'aggregate con Average per contare media
-        // la mediana tocca vede come si calcola
+        var mapped = dataStream.map(event -> {
+                    Cell c = grid.getCellFromEvent(event);
+                    return new ValQ3(event.getTimestamp(),
+                            event.getTemperature(), event.getTemperature(), c.getId());
+                }).setParallelism(1);
+
+        var mean = mapped
+                .keyBy(v -> v.getCell_id())
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .aggregate(new AvgQ3());
+        mean.print();
+
 
         env.execute("Query 3");
+    }
+
+    // LAT Y: 38 - 58
+    // LON X: 2  - 30
+    static boolean validateCoordinates(Double latitude, Double longitude) {
+        if (latitude < 38D || latitude > 58D || longitude < 2D || longitude > 30D) {
+            return false;
+        }
+        return true;
     }
 }

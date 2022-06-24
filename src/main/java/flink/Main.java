@@ -16,7 +16,6 @@ import flink.queries.Query3;
 
 public class Main {
     static Query query;
-    //TODO Fare un serializzatore vero
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

@@ -14,9 +14,8 @@ public class EventDeserializer implements DeserializationSchema<Event> {
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
-//            validateCoordinates(event.getLatitude(),event.getLongitude());
             return event;
-        } catch (TemperatureOutOfBoundException  e) {
+        } catch (TemperatureOutOfBoundException e) {
 //            e.printStackTrace();
             return null;
         }
@@ -40,14 +39,6 @@ public class EventDeserializer implements DeserializationSchema<Event> {
     static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
         if (temperature < -40 || temperature > 85) {
             throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
-        }
-    }
-
-    // LAT Y: 38 - 58
-    // LON X: 2  - 30
-    static void validateCoordinates(Double latitude, Double longitude) throws CoordinatesOutOfBoundException {
-        if (latitude < 38 || latitude > 58 || longitude < 2 || latitude > 30) {
-            throw new CoordinatesOutOfBoundException("Coordinate Error: Sensor out of grid");
         }
     }
 }
