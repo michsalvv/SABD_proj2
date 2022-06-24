@@ -19,7 +19,7 @@ package flink.queries;
 
 import flink.deserialize.Event;
 import flink.queries.aggregate.AvgQ3;
-import org.apache.flink.api.common.functions.MapFunction;
+import flink.queries.process.MedianQ3;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
@@ -28,8 +28,6 @@ import utils.Config;
 import utils.grid.Cell;
 import utils.grid.Grid;
 import utils.tuples.ValQ3;
-
-import java.util.List;
 
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
@@ -61,10 +59,18 @@ public class Query3 extends Query {
                             event.getTemperature(), event.getTemperature(), c.getId());
                 }).setParallelism(1);
 
-        var mean = mapped
-                .keyBy(v -> v.getCell_id())
+        var keyed = mapped
+                .keyBy(v -> v.getCell_id());
+
+        var mean = keyed
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
                 .aggregate(new AvgQ3());
+
+        var median = keyed
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .process(new MedianQ3());
+
+//        median.join(mean);
         mean.print();
 
 
