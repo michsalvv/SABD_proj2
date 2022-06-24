@@ -5,6 +5,7 @@ import utils.grid.Grid;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Comparator;
 
 public class ValQ3 implements Serializable {
     Timestamp timestamp;
@@ -24,6 +25,14 @@ public class ValQ3 implements Serializable {
     }
 
     public ValQ3() {}
+
+    public ValQ3(Timestamp timestamp, Double mean_temp, Double median_temp, Integer cell_id, Long occurrences) {
+        this.timestamp = timestamp;
+        this.mean_temp = mean_temp;
+        this.median_temp = median_temp;
+        this.cell_id = cell_id;
+        this.occurrences = occurrences;
+    }
 
     public Timestamp getTimestamp() {
         return timestamp;
@@ -74,5 +83,12 @@ public class ValQ3 implements Serializable {
                 ", cell_id=" + cell_id +
                 ", occurrences=" + occurrences +
                 '}';
+    }
+
+    public static class ValQ3Comparator implements Comparator<ValQ3> {
+        @Override
+        public int compare(ValQ3 o1, ValQ3 o2) {
+            return Double.compare(o1.getMean_temp(),o2.getMean_temp());
+        }
     }
 }

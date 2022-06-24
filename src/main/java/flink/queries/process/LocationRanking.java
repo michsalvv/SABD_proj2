@@ -1,16 +1,13 @@
 package flink.queries.process;
 
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import utils.Tools;
-import utils.tuples.OutputQ2;
 import utils.tuples.OutputQuery;
 import utils.tuples.ValQ2;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 public class LocationRanking extends ProcessAllWindowFunction<ValQ2, OutputQuery, TimeWindow> {
     @Override

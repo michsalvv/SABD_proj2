@@ -1,13 +1,12 @@
 package utils;
 
-import utils.tuples.OutputQ2;
-import utils.tuples.ValQ2;
+import utils.tuples.*;
+import utils.tuples.ValQ3.ValQ3Comparator;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Tools {
 
@@ -106,5 +105,43 @@ public class Tools {
 
         String ts = String.format("%d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, slot);
         return Timestamp.valueOf(ts);
+    }
+
+    /**
+     * Returns a sorted copy of the provided collection of things. Uses the natural ordering of the things.
+     */
+    public static List<ValQ3> sortByTemperature (Iterable<ValQ3> things) {
+        ValQ3Comparator comparator = new ValQ3Comparator();
+        List<ValQ3> copy = toMutableList(things);
+        Collections.sort(copy, comparator);
+        return copy;
+    }
+
+
+    private static <ValQ3> List<ValQ3> toMutableList(Iterable<ValQ3> things) {
+        if (things == null) {
+            return new ArrayList<>(0);
+        }
+        List<ValQ3> list = new ArrayList<ValQ3>();
+        for (ValQ3 thing : things) {
+            list.add(thing);
+        }
+        return list;
+    }
+
+    public static OutputQuery cellStatisticsOnRow(Iterable<ValQ3> iterable) {
+        List<ValQ3> rows = new ArrayList<>();
+        Iterator<ValQ3> iterator = iterable.iterator();
+        for (int i = 0; i<16; i++){
+            rows.add(new ValQ3(new Timestamp(0),0D,0D,-1));
+        }
+
+        while (iterator.hasNext()) {
+            ValQ3 actual = iterator.next();
+            Integer pos = actual.getCell_id();
+            rows.set(pos,actual);
+        }
+
+        return new OutputQ3(rows);
     }
 }
