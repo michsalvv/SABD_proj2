@@ -38,8 +38,6 @@ public class Query1 extends Query {
                 .aggregate(new AvgQ1())
                 .setParallelism(4);
 
-        dataStream.print();
-
         final StreamingFileSink<OutputQuery> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new CSVEncoder())
                 .withRollingPolicy(

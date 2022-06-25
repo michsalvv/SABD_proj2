@@ -3,19 +3,19 @@ package utils.tuples;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class ValQ1 implements Serializable, OutputQuery {
+public class OutQ1 implements Serializable, OutputQuery {
     Timestamp slotTimestamp;
     Long sensor_id;
     Double meanTemperature;
     Long occurrences;
     String header = "ts;sensor_id;count;avg_temperature\n";
-    public ValQ1(Timestamp timestamp, Long sensor_id, Double temperature) {
+    public OutQ1(Timestamp timestamp, Long sensor_id, Double temperature) {
         this.slotTimestamp = timestamp;
         this.sensor_id = sensor_id;
         this.meanTemperature = temperature;
     }
 
-    public ValQ1() {
+    public OutQ1() {
     }
 
     public Timestamp getTimestamp() {
@@ -62,6 +62,7 @@ public class ValQ1 implements Serializable, OutputQuery {
 
     @Override
     public String toCSV() {
+        System.out.println("Writing Results for Window: " + slotTimestamp);
         return slotTimestamp+";"+sensor_id+";"+occurrences+";"+meanTemperature;
     }
 

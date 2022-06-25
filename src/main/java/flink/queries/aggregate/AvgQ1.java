@@ -4,7 +4,7 @@ import flink.deserialize.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Tools;
 import utils.tuples.OutputQuery;
-import utils.tuples.ValQ1;
+import utils.tuples.OutQ1;
 
 public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuery> {
     public AccumulatorQ1 createAccumulator() {
@@ -28,9 +28,9 @@ public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuer
     }
 
     @Override
-    public ValQ1 getResult(AccumulatorQ1 acc) {
+    public OutQ1 getResult(AccumulatorQ1 acc) {
         double mean = acc.sum / (double) acc.count;
-        ValQ1 result = new ValQ1();
+        OutQ1 result = new OutQ1();
         result.setSensor_id(acc.sensor_id);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);

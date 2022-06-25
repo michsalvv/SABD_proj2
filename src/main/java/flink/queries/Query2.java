@@ -44,7 +44,6 @@ public class Query2 extends Query {
         var win2 = mean.windowAll(TumblingEventTimeWindows.of(Time.minutes(60)));
         var result = win2.process(new LocationRanking())
                 .setParallelism(1);
-        result.print();
 
         StreamingFileSink<OutputQuery> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new CSVEncoder())

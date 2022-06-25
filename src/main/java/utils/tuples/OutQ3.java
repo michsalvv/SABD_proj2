@@ -1,12 +1,9 @@
 package utils.tuples;
 
-//* ts, cell_0, avg_temp0, med_temp0, ...
-//        * cell_15, avg_temp15, med_temp15
-
 import java.sql.Timestamp;
 import java.util.List;
 
-public class OutputQ3 implements OutputQuery {
+public class OutQ3 implements OutputQuery {
     String header = buildHeader();
 
     private static final String delimiter = ";";
@@ -15,6 +12,7 @@ public class OutputQ3 implements OutputQuery {
     @Override
     public String toCSV() {
         Timestamp timeslot = row.get(0).getTimestamp();
+        System.out.println("Writing Results for Window: " + timeslot);
         StringBuilder builder = new StringBuilder();
         builder.append(timeslot.toString()).append(delimiter);
         for (ValQ3 val :row) {
@@ -22,12 +20,10 @@ public class OutputQ3 implements OutputQuery {
             builder.append(val.getMean_temp()).append(delimiter);
             builder.append(val.getMedian_temp()).append(delimiter);
         }
-
         // Simply remove last useless delimiter
         if (builder.length() > 0) {
             builder.setLength(builder.length() - 1);
         }
-
         return builder.toString();
     }
 
@@ -36,7 +32,7 @@ public class OutputQ3 implements OutputQuery {
         return header;
     }
 
-    public OutputQ3(List<ValQ3> row) {
+    public OutQ3(List<ValQ3> row) {
         this.row = row;
     }
 
@@ -53,6 +49,7 @@ public class OutputQ3 implements OutputQuery {
         for (int i = 0; i < 16; i++) {
             header = header + String.format("cell_%d;avg_temp%d;med_temp%d;",i,i,i);
         }
+        header = header + "\n";
         return header;
     }
 }

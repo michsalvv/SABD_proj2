@@ -5,8 +5,6 @@ import utils.tuples.ValQ3.ValQ3Comparator;
 
 import java.sql.Timestamp;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Tools {
 
@@ -22,7 +20,7 @@ public class Tools {
         return false;
     }
 
-    public static OutputQ2 getLocationsRanking(Iterable<ValQ2> list) {
+    public static OutQ2 getLocationsRanking(Iterable<ValQ2> list) {
         List<ValQ2> high = new ArrayList<>();
         List<Long> highIds = new ArrayList<>();
         List<ValQ2> low = new ArrayList<>();
@@ -61,7 +59,7 @@ public class Tools {
             lowIds.add(minId);
             low.add(min);
         }
-        return new OutputQ2(high,low);
+        return new OutQ2(high,low);
     }
 
     public static Timestamp getHourSlot(Timestamp timestamp){
@@ -129,11 +127,11 @@ public class Tools {
         return list;
     }
 
-    public static OutputQuery cellStatisticsOnRow(Iterable<ValQ3> iterable) {
+    public static OutputQuery cellStatisticsOnRow(Iterable<ValQ3> iterable, Timestamp window) {
         List<ValQ3> rows = new ArrayList<>();
         Iterator<ValQ3> iterator = iterable.iterator();
         for (int i = 0; i<16; i++){
-            rows.add(new ValQ3(new Timestamp(0),0D,0D,-1));
+            rows.add(new ValQ3(window,0D,0D,-1));
         }
 
         while (iterator.hasNext()) {
@@ -142,6 +140,6 @@ public class Tools {
             rows.set(pos,actual);
         }
 
-        return new OutputQ3(rows);
+        return new OutQ3(rows);
     }
 }

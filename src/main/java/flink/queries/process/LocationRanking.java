@@ -14,7 +14,7 @@ public class LocationRanking extends ProcessAllWindowFunction<ValQ2, OutputQuery
     public void process(ProcessAllWindowFunction<ValQ2, OutputQuery, TimeWindow>.Context context, Iterable<ValQ2> iterable, Collector<OutputQuery> collector) throws Exception {
         Long end = context.window().getEnd();
         Long start = context.window().getStart();
-        System.out.printf("WINDOW: (%s,%s)\n", new Timestamp(start),new Timestamp(end));
+//        System.out.printf("WINDOW: (%s,%s)\n", new Timestamp(start),new Timestamp(end));
 
         var ranks = Tools.getLocationsRanking(iterable);
 

@@ -22,18 +22,27 @@ import flink.queries.aggregate.AvgQ3;
 import flink.queries.process.CellStatistics;
 import flink.queries.process.Median;
 import org.apache.flink.api.common.functions.JoinFunction;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import utils.CSVEncoder;
 import utils.Config;
 import utils.grid.Cell;
 import utils.grid.Grid;
+import utils.tuples.OutputQuery;
 import utils.tuples.ValQ3;
+
+import java.util.concurrent.TimeUnit;
 
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
     DataStreamSource<Event> src;
+    private final static String outputPath = "q3-res";
+
 
     public Query3(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
@@ -64,11 +73,11 @@ public class Query3 extends Query {
                 .keyBy(v -> v.getCell_id());
 
         var median = keyed
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new Median());
 
         var mean = keyed
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .aggregate(new AvgQ3());
 
         // [MEAN|MEDIAN]
@@ -76,12 +85,10 @@ public class Query3 extends Query {
                 .join(median)
                 .where(e->e.getCell_id())
                 .equalTo(f->f.getCell_id())
-                .window(TumblingEventTimeWindows.of(Time.seconds(5)));
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)));
 
 
-        var result = joined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
-//            System.out.println("\nv1: " + v1.toString());
-//            System.out.println("v2: " + v2.toString());
+        var statistics = joined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
             var id = v1.getCell_id();
             var meanTemp = v1.getMean_temp();
             var medianTemp = v2.getMedian_temp();
@@ -90,12 +97,24 @@ public class Query3 extends Query {
             return new ValQ3(time,meanTemp,medianTemp,id,occ);
         });
 
-        var resultRow = result
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
+        var resultRow = statistics
+                .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new CellStatistics());
 
-        resultRow.print();
+//        resultRow.print();
 
+        StreamingFileSink<OutputQuery> sink = StreamingFileSink
+                .forRowFormat(new Path(outputPath), new CSVEncoder())
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
+                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withMaxPartSize(1024 * 1024 * 1024)
+                                .build())
+                .withOutputFileConfig(Config.outputFileConfig)
+                .build();
+
+        resultRow.addSink(sink);
         env.execute("Query 3");
     }
 

@@ -3,7 +3,7 @@ package utils.tuples;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class OutputQ2 implements OutputQuery {
+public class OutQ2 implements OutputQuery {
     private static final String header = "ts;location1;avg_temp1;location2;avg_temp2;location3;avg_temp3;" +
             "location4;avg_temp4;location5;avg_temp5;" +
             "location6;avg_temp6;location7;avg_temp7;location8;" +
@@ -15,6 +15,7 @@ public class OutputQ2 implements OutputQuery {
     @Override
     public String toCSV() {
         Timestamp timeslot = highMean.get(0).getTimestamp();
+        System.out.println("Writing Results for Window: " + timeslot);
         StringBuilder builder = new StringBuilder();
         builder.append(timeslot.toString()).append(delimiter);
         for (ValQ2 val :highMean) {
@@ -39,7 +40,7 @@ public class OutputQ2 implements OutputQuery {
         return header;
     }
 
-    public OutputQ2(List<ValQ2> high, List<ValQ2> low ) {
+    public OutQ2(List<ValQ2> high, List<ValQ2> low ) {
         this.highMean = high;
         this.lowMean = low;
     }

@@ -1,10 +1,7 @@
 package flink.queries.aggregate;
 
-import flink.deserialize.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Tools;
-import utils.tuples.OutputQuery;
-import utils.tuples.ValQ1;
 import utils.tuples.ValQ3;
 
 public class AvgQ3 implements AggregateFunction<ValQ3, AccumulatorQ3, ValQ3> {
@@ -34,7 +31,7 @@ public class AvgQ3 implements AggregateFunction<ValQ3, AccumulatorQ3, ValQ3> {
         ValQ3 result = new ValQ3();
         result.setMean_temp(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(Tools.getSecondsSlot(acc.last_timestamp,5));
+        result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
         result.setCell_id(acc.cell_id);
         return result;
     }
