@@ -54,8 +54,8 @@ public class Main {
                 "Kafka Source");
 
         Query q1 = new Query1(env,src);
-        Query q2 = new Query2(env, src);
-        Query q3 = new Query3(env, src);
+        Query q2 = new Query2(env,src);
+        Query q3 = new Query3(env,src);
 
         switch (args[0]) {
             case ("Q1"):

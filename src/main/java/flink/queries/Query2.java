@@ -37,12 +37,14 @@ public class Query2 extends Query {
     @Override
     public void execute() throws Exception {
 
-        var keyed = src.keyBy(event -> event.getLocation());
-        var win = keyed.window(TumblingEventTimeWindows.of(Time.minutes(60)));
-        var mean = win.aggregate(new AvgQ2())
-                .setParallelism(5);
-        var win2 = mean.windowAll(TumblingEventTimeWindows.of(Time.minutes(60)));
-        var result = win2.process(new LocationRanking())
+        var keyed = src.keyBy(event -> event.getLocation())
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)));
+
+        var mean = keyed.aggregate(new AvgQ2())
+                .setParallelism(5)
+                .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)));
+
+        var result = mean.process(new LocationRanking())
                 .setParallelism(1);
 
         StreamingFileSink<OutputQuery> sink = StreamingFileSink
