@@ -14,5 +14,10 @@ public class Config {
     public static final int SPLIT_FACTOR = 4;
     public static final int NUM_AREAS = 16;
 
+    // WINDOW TYPES
+    public static final String HOUR = "hour";
+    public static final String WEEK = "week";
+    public static final String MONTH = "month";
+
     public static final OutputFileConfig outputFileConfig = OutputFileConfig.builder().withPartSuffix(".csv").build();
 }

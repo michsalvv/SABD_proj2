@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.CSVEncoder;
 import utils.Config;
+import utils.Tools;
 import utils.tuples.OutputQuery;
 
 import java.util.concurrent.TimeUnit;
@@ -42,26 +43,38 @@ public class Query1 extends Query {
     public void execute() throws Exception {
         String outputPath = "q1-res";
 
-        var dataStream = src
+        var keyed = src
                 .filter(event -> event.getSensor_id() < 10000)
 //                .setParallelism(2)
-                .keyBy(Event::getSensor_id)
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .allowedLateness(Time.minutes(2))                                           // funziona
-                .aggregate(new AvgQ1())
+                .keyBy(Event::getSensor_id);
+
+        var hourResult = keyed
+                .window(TumblingEventTimeWindows.of(Time.hours(1)))
+//                .allowedLateness(Time.minutes(2))                                           // funziona
+                .aggregate(new AvgQ1(Config.HOUR))
                 .setParallelism(4);
 
-        final StreamingFileSink<OutputQuery> sink = StreamingFileSink
-                .forRowFormat(new Path(outputPath), new CSVEncoder())
-                .withRollingPolicy(
-                        DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
-                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
-                                .withMaxPartSize(1024 * 1024 * 1024)
-                                .build())
-                .withOutputFileConfig(Config.outputFileConfig)
-                .build();
-        dataStream.addSink(sink);               // Il sink deve avere parallelismo 1
+        var weekResult = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(7)))
+//                .allowedLateness(Time.minutes(2))                                           // funziona
+                .aggregate(new AvgQ1(Config.WEEK))
+                .setParallelism(4);
+
+        var monthResult = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(31)))
+//                .allowedLateness(Time.minutes(2))                                           // funziona
+                .aggregate(new AvgQ1(Config.MONTH))
+                .setParallelism(4);
+
+        monthResult.print();
+//
+//        var hourSink = Tools.buildSink("q1-res/hourly");
+//        var weekSink = Tools.buildSink("q1-res/weekly");
+        var monthSink = Tools.buildSink("q1-res/monthly");
+
+//        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
+//        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
+        monthResult.addSink(monthSink);               // Il sink deve avere parallelismo 1
         env.execute("Query 1");
     }
 }

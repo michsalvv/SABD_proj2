@@ -4,6 +4,7 @@ import flink.deserialize.EventDeserializer;
 import flink.deserialize.Event;
 import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -13,6 +14,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import flink.queries.Query1;
 import flink.queries.Query2;
 import flink.queries.Query3;
+
+import java.time.Duration;
 
 public class Main {
     static Query query;

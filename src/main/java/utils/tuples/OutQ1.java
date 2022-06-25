@@ -52,7 +52,7 @@ public class OutQ1 implements Serializable, OutputQuery {
 
     @Override
     public String toString() {
-        return "ValQ1{" +
+        return "OutQ1{" +
                 "timestamp=" + slotTimestamp +
                 ", sensor_id=" + sensor_id +
                 ", temperature=" + meanTemperature +

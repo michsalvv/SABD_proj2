@@ -24,11 +24,11 @@ public class EventDeserializer implements DeserializationSchema<Event> {
 
     @Override
     public boolean isEndOfStream(Event nextElement) {
-//        if (nextElement.getSensor_id() == 0){
-//            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//            return true;
-//        }
-        return false;
+        if (nextElement.getSensor_id() == -1){
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            return true;
+        }
+        return true;
     }
 
     @Override

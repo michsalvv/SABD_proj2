@@ -1,10 +1,14 @@
 package utils;
 
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import utils.tuples.*;
 import utils.tuples.ValQ3.ValQ3Comparator;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Tools {
 
@@ -62,30 +66,39 @@ public class Tools {
         return new OutQ2(high,low);
     }
 
-    public static Timestamp getHourSlot(Timestamp timestamp){
+    public static Timestamp getMonthSlot(Timestamp timestamp){
         Calendar cal = Calendar.getInstance();
         cal.setTime(timestamp);
         int year = timestamp.toLocalDateTime().getYear();
-        int hour = timestamp.toLocalDateTime().getHour();
         int month = timestamp.toLocalDateTime().getMonthValue();
-        int day = timestamp.toLocalDateTime().getDayOfMonth();
 
-        String ts = String.format("%d-%02d-%02d %02d:00:00", year, month, day, hour );
+        String ts = String.format("%d-%02d-01 00:00:00", year, month);
         return Timestamp.valueOf(ts);
     }
 
-    public static Timestamp getMinutesSlot(Timestamp timestamp, int minutes){
+    public static Timestamp getWeekSlot(Timestamp timestamp){
         Calendar cal = Calendar.getInstance();
         cal.setTime(timestamp);
         int year = timestamp.toLocalDateTime().getYear();
-        int hour = timestamp.toLocalDateTime().getHour();
         int month = timestamp.toLocalDateTime().getMonthValue();
         int day = timestamp.toLocalDateTime().getDayOfMonth();
-        int minute = timestamp.toLocalDateTime().getMinute();
-        int ceil = (int) Math.ceil((double) minute / minutes);
-        int slot = ceil * minutes;
+        int ceil = day/7;
+        int slot = ceil * 7 + 1;
 
-        String ts = String.format("%d-%02d-%02d %02d:%02d:00", year, month, day, hour, slot);
+        String ts = String.format("%d-%02d-%02d 00:00:00", year, month, slot);
+        return Timestamp.valueOf(ts);
+    }
+
+    public static Timestamp getHourSlot(Timestamp timestamp){
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp);
+        int year = timestamp.toLocalDateTime().getYear();
+        int month = timestamp.toLocalDateTime().getMonthValue();
+        int day = timestamp.toLocalDateTime().getDayOfMonth();
+        int hour = timestamp.toLocalDateTime().getHour();
+
+        String ts = String.format("%d-%02d-%02d %02d:00:00", year, month, day, hour);
         return Timestamp.valueOf(ts);
     }
 
@@ -93,9 +106,9 @@ public class Tools {
         Calendar cal = Calendar.getInstance();
         cal.setTime(timestamp);
         int year = timestamp.toLocalDateTime().getYear();
-        int hour = timestamp.toLocalDateTime().getHour();
         int month = timestamp.toLocalDateTime().getMonthValue();
         int day = timestamp.toLocalDateTime().getDayOfMonth();
+        int hour = timestamp.toLocalDateTime().getHour();
         int minute = timestamp.toLocalDateTime().getMinute();
         int second = timestamp.toLocalDateTime().getSecond();
         int ceil = second/seconds;
@@ -141,5 +154,21 @@ public class Tools {
         }
 
         return new OutQ3(rows);
+    }
+
+    public static StreamingFileSink<OutputQuery> buildSink (String outputPath) {
+
+        final StreamingFileSink<OutputQuery> sink = StreamingFileSink
+                .forRowFormat(new Path(outputPath), new CSVEncoder())
+                .withRollingPolicy(
+                        DefaultRollingPolicy.builder()
+                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
+                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withMaxPartSize(1024 * 1024 * 1024)
+                                .build())
+                .withOutputFileConfig(Config.outputFileConfig)
+                .build();
+
+        return sink;
     }
 }
