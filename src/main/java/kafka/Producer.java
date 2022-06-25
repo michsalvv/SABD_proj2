@@ -1,7 +1,6 @@
 package kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import kafka.exception.SimulationTimeException;
 import utils.Config;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.Properties;
 
 public class Producer {
@@ -21,7 +19,7 @@ public class Producer {
 
         Properties props = new Properties();
         props.put("bootstrap.servers", "kafka-broker:29092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.LongSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         org.apache.kafka.clients.producer.Producer<Object, String> producer = new KafkaProducer<>(props);
@@ -44,7 +42,7 @@ public class Producer {
                 Double longitude = Double.parseDouble(values[4]);
                 var message = String.format("%s;%d;%,.4f;%d;%,.4f;%,.4f;", timestamp, sensor_id, temperature,
                         location, latitude, longitude);
-                var producerRecord = new ProducerRecord<>("flink-events", message);
+                var producerRecord = new ProducerRecord<>("flink-events", 0, timestamp.getTime(), null, message);
                 if (first) {
                     first = false;
                 } else {
@@ -59,7 +57,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-//                System.out.printf("Send: %s%n", message);
+                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }

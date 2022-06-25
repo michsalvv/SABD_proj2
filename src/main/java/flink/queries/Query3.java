@@ -50,17 +50,17 @@ public class Query3 extends Query {
         // this means that top-left = (58°,2°) and bottom_right = (38°,30°)
         Grid grid = new Grid(lat1, lon1, lat2, lon2, Config.SPLIT_FACTOR);
 
-        var dataStream = src
-                .filter(event -> validateCoordinates(event.getLatitude(),event.getLongitude()));
+//        var dataStream = src
+//                .filter(event -> validateCoordinates(event.getLatitude(),event.getLongitude()));
 
-        var mapped = dataStream.map(event -> {
+        var mapped = src.map(event -> {
                     Cell c = grid.getCellFromEvent(event);
                     return new ValQ3(event.getTimestamp(),
                             event.getTemperature(), event.getTemperature(), c.getId());
                 }).setParallelism(1);
 
         var keyed = mapped
-                .keyBy(v -> v.getCell_id());
+                .keyBy(ValQ3::getCell_id);
 
         var mean = keyed
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))

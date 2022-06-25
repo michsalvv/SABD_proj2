@@ -14,6 +14,9 @@ public class Event implements Serializable {
     private Double latitude;
     private Double longitude;
 
+    public Event() {
+    }
+
     public Event(String rawMessage) {
         var values = rawMessage.split(";");
         this.timestamp = Timestamp.valueOf(values[0]);

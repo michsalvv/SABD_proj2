@@ -18,6 +18,13 @@ public class ValQ1 implements Serializable, OutputQuery {
     public ValQ1() {
     }
 
+    public ValQ1(Timestamp slotTimestamp, Long sensor_id, Double meanTemperature, Long occurrences) {
+        this.slotTimestamp = slotTimestamp;
+        this.sensor_id = sensor_id;
+        this.meanTemperature = meanTemperature;
+        this.occurrences = occurrences;
+    }
+
     public Timestamp getTimestamp() {
         return slotTimestamp;
     }
