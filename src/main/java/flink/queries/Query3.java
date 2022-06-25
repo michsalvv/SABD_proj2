@@ -13,6 +13,11 @@
  * Q3 output:
  * ts, cell_0, avg_temp0, med_temp0, ...
  * cell_15, avg_temp15, med_temp15
+ * -------------------------------------------------------------
+ * Using a tumbling window, calculate this query:
+ * – every 1 hour (event time)
+ * – every 1 day (event time)
+ * – every 1 week (event time)
  */
 
 package flink.queries;

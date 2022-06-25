@@ -1,7 +1,20 @@
+/**
+ * For those sensors having sensor_id < 10000, find
+ * the number of measurements and the temperature
+ * average value
+ * -----------------------------------------------------
+ * Q1 output:
+ * ts, sensor_id, count, avg_temperature
+ * -----------------------------------------------------
+ * Using a tumbling window, calculate this query:
+ * – every 1 hour (event time)
+ * – every 1 week (event time)
+ * – from the beginning of the dataset
+ */
+
 package flink.queries;
 
 import flink.deserialize.Event;
-import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;

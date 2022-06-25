@@ -4,6 +4,11 @@
  * --------------------------------------------------------------------------------------
  * Q2 output:
  * ts, location1, avg_temp1, ... location5, avg_temp5, location6, avg
+ * --------------------------------------------------------------------------------------
+ * Using a tumbling window, calculate this query:
+ * – every 1 hour (event time)
+ * – every 1 day (event time)
+ * – every 1 week (event time)
  */
 
 package flink.queries;
