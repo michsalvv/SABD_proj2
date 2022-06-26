@@ -6,7 +6,7 @@ fi
 
 if [ "$1" = "q1" ] || [ "$1" = "q2" ]  ||  [ "$1" = "q3" ] ; then
 	sudo rm -d -r results/$1-res/;
-	sudo docker cp taskmanager:/opt/flink/$1-res/ results/
+	sudo docker cp taskmanager:/opt/flink/results/$1-res/ results/
 	
 	sudo mv results/$1-res/hourly/$(ls results/$1-res/hourly/)/part-0-0.csv results/$1-res/hourly.csv
 	sudo mv results/$1-res/weekly/$(ls results/$1-res/weekly/)/part-0-0.csv results/$1-res/weekly.csv

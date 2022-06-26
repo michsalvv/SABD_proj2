@@ -22,6 +22,8 @@ public class Median extends ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWin
             median = (sorted.get(size/2).getMean_temp() + sorted.get(size/2-1).getMean_temp())/2;
         else
             median = sorted.get(size/2).getMean_temp();
+
+
         collector.collect(new ValQ3(start,null,median,cell_id));
     }
 }

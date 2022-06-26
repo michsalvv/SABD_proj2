@@ -37,6 +37,7 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.CSVEncoder;
 import utils.Config;
+import utils.Tools;
 import utils.grid.Cell;
 import utils.grid.Grid;
 import utils.tuples.OutputQuery;
@@ -47,8 +48,6 @@ import java.util.concurrent.TimeUnit;
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
     DataStreamSource<Event> src;
-    private final static String outputPath = "q3-res";
-
 
     public Query3(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
@@ -66,35 +65,36 @@ public class Query3 extends Query {
         // this means that top-left = (58°,2°) and bottom_right = (38°,30°)
         Grid grid = new Grid(lat1, lon1, lat2, lon2, Config.SPLIT_FACTOR);
 
-        var dataStream = src
-                .filter(event -> validateCoordinates(event.getLatitude(),event.getLongitude()));
-
-        var mapped = dataStream.map(event -> {
-                    Cell c = grid.getCellFromEvent(event);
-                    return new ValQ3(event.getTimestamp(),
-                            event.getTemperature(), 0D, c.getId());
-                }).setParallelism(1);
-
-        var keyed = mapped
+        var keyed = src
+                .filter(event -> isSensorInGrid(event.getLatitude(),event.getLongitude()))
+                .map(event -> new ValQ3(event.getTimestamp(),
+                        event.getTemperature(), 0D, grid.getCellFromEvent(event).getId()))
+                .setParallelism(1)
                 .keyBy(v -> v.getCell_id());
 
-        var median = keyed
+
+        /**
+         * Calcolo su finestra di un'ora
+         */
+        // Calcolo della media
+        var hourMean = keyed
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .aggregate(new AvgQ3(Config.HOUR));
+
+        // Calcolo della mediana
+        var hourMedian = keyed
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new Median());
 
-        var mean = keyed
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .aggregate(new AvgQ3());
-
         // [MEAN|MEDIAN]
-        var joined = mean
-                .join(median)
+        var hourJoined = hourMean
+                .join(hourMedian)
                 .where(e->e.getCell_id())
                 .equalTo(f->f.getCell_id())
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)));
 
-
-        var statistics = joined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
+        // Campi di interesse per l'output
+        var hourStatistics = hourJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
             var id = v1.getCell_id();
             var meanTemp = v1.getMean_temp();
             var medianTemp = v2.getMedian_temp();
@@ -103,30 +103,95 @@ public class Query3 extends Query {
             return new ValQ3(time,meanTemp,medianTemp,id,occ);
         });
 
-        var resultRow = statistics
+        // Unione dei risultati della singola finestra sulla stessa riga
+        var hourResult = hourStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new CellStatistics(Config.HOUR));
 
-//        resultRow.print();
+        /**
+         * Calcolo su finestra di una settimana
+         */
+        // Calcolo della media
+        var weekMean = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .aggregate(new AvgQ3(Config.WEEK));
 
-        StreamingFileSink<OutputQuery> sink = StreamingFileSink
-                .forRowFormat(new Path(outputPath), new CSVEncoder())
-                .withRollingPolicy(
-                        DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
-                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
-                                .withMaxPartSize(1024 * 1024 * 1024)
-                                .build())
-                .withOutputFileConfig(Config.outputFileConfig)
-                .build();
+        // Calcolo della mediana
+        var weekMedian = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .process(new Median());
 
-        resultRow.addSink(sink);
+        // [MEAN|MEDIAN]
+        var weekJoined = weekMean
+                .join(weekMedian)
+                .where(e->e.getCell_id())
+                .equalTo(f->f.getCell_id())
+                .window(TumblingEventTimeWindows.of(Time.days(7)));
+
+        // Campi di interesse per l'output
+        var weekStatistics = weekJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
+            var id = v1.getCell_id();
+            var meanTemp = v1.getMean_temp();
+            var medianTemp = v2.getMedian_temp();
+            var time = v1.getTimestamp();
+            var occ = v1.getOccurrences();
+            return new ValQ3(time,meanTemp,medianTemp,id,occ);
+        });
+
+        // Unione dei risultati della singola finestra sulla stessa riga
+        var weekResult = weekStatistics
+                .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
+                .process(new CellStatistics(Config.WEEK));
+
+        /**
+         * Calcolo su finestra di un mese
+         */
+        // Calcolo della media
+        var monthMean = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(30)))
+                .aggregate(new AvgQ3(Config.MONTH));
+
+        // Calcolo della mediana
+        var monthMedian = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(30)))
+                .process(new Median());
+
+        // [MEAN|MEDIAN]
+        var monthJoined = monthMean
+                .join(monthMedian)
+                .where(e->e.getCell_id())
+                .equalTo(f->f.getCell_id())
+                .window(TumblingEventTimeWindows.of(Time.days(30)));
+
+        // Campi di interesse per l'output
+        var monthStatistics = monthJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
+            var id = v1.getCell_id();
+            var meanTemp = v1.getMean_temp();
+            var medianTemp = v2.getMedian_temp();
+            var time = v1.getTimestamp();
+            var occ = v1.getOccurrences();
+            return new ValQ3(time,meanTemp,medianTemp,id,occ);
+        });
+
+        // Unione dei risultati della singola finestra sulla stessa riga
+        var monthResult = monthStatistics
+                .windowAll(TumblingEventTimeWindows.of(Time.days(30)))
+                .process(new CellStatistics(Config.MONTH));
+
+        var hourSink = Tools.buildSink("results/q3-res/hourly");
+        var weekSink = Tools.buildSink("results/q3-res/weekly");
+        var monthSink = Tools.buildSink("results/q3-res/monthly");
+
+        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
+        monthResult.addSink(monthSink);             // Il sink deve avere parallelismo 1
+
         env.execute("Query 3");
     }
 
-    // LAT Y: 38 - 58
-    // LON X: 2  - 30
-    static boolean validateCoordinates(Double latitude, Double longitude) {
+    // LAT (Y): 38 - 58
+    // LON (X): 2  - 30
+    static boolean isSensorInGrid(Double latitude, Double longitude) {
         if (latitude < 38D || latitude > 58D || longitude < 2D || longitude > 30D) {
             return false;
         }

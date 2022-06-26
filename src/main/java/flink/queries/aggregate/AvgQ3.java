@@ -1,10 +1,17 @@
 package flink.queries.aggregate;
 
 import org.apache.flink.api.common.functions.AggregateFunction;
+import utils.Config;
 import utils.Tools;
 import utils.tuples.ValQ3;
 
 public class AvgQ3 implements AggregateFunction<ValQ3, AccumulatorQ3, ValQ3> {
+    String windowType;
+
+    public AvgQ3(String windowType) {
+        this.windowType = windowType;
+    }
+
     public AccumulatorQ3 createAccumulator() {
         return new AccumulatorQ3();
     }
@@ -31,8 +38,15 @@ public class AvgQ3 implements AggregateFunction<ValQ3, AccumulatorQ3, ValQ3> {
         ValQ3 result = new ValQ3();
         result.setMean_temp(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
         result.setCell_id(acc.cell_id);
-        return result;
+        if (windowType.equals(Config.HOUR)) {
+            result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.WEEK)) {
+            result.setTimestamp(Tools.getWeekSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.MONTH)) {
+            result.setTimestamp(Tools.getMonthSlot(acc.last_timestamp));
+        }        return result;
     }
 }

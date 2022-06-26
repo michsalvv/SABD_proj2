@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 public class Query2 extends Query {
     StreamExecutionEnvironment env;
     DataStreamSource<Event> src;
-    private final static String outputPath = "q2-res";
 
     public Query2(StreamExecutionEnvironment env, DataStreamSource<Event> src) {
         this.env = env;
@@ -76,9 +75,9 @@ public class Query2 extends Query {
                 .process(new LocationRanking(Config.MONTH))
                 .setParallelism(1);
 
-        var hourSink = Tools.buildSink("q2-res/hourly");
-        var weekSink = Tools.buildSink("q2-res/weekly");
-        var monthSink = Tools.buildSink("q2-res/monthly");
+        var hourSink = Tools.buildSink("results/q2-res/hourly");
+        var weekSink = Tools.buildSink("results/q2-res/weekly");
+        var monthSink = Tools.buildSink("results/q2-res/monthly");
 
         hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
         weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
