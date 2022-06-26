@@ -20,7 +20,7 @@
  * – every 1 week (event time)
  */
 
-// TODO finire windowing per tutte le taglie.
+// TODO valutare con i soci se conviene ciclo for dove si setta size=Time.(finestra) e string win = Config.FINESTRA
 package flink.queries;
 
 import flink.deserialize.Event;
