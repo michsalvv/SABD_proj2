@@ -10,13 +10,19 @@ import utils.tuples.ValQ2;
 import java.sql.Timestamp;
 
 public class LocationRanking extends ProcessAllWindowFunction<ValQ2, OutputQuery, TimeWindow> {
+    String window;
+
+    public LocationRanking(String window) {
+        this.window = window;
+    }
+
     @Override
     public void process(ProcessAllWindowFunction<ValQ2, OutputQuery, TimeWindow>.Context context, Iterable<ValQ2> iterable, Collector<OutputQuery> collector){
-        Long end = context.window().getEnd();
-        Long start = context.window().getStart();
+        Timestamp end = new Timestamp (context.window().getEnd());
+        Timestamp start = new Timestamp (context.window().getStart());
 //        System.out.printf("WINDOW: (%s,%s)\n", new Timestamp(start),new Timestamp(end));
 
-        var ranks = Tools.getLocationsRanking(iterable);
+        var ranks = Tools.getLocationsRanking(iterable,window);
 
         collector.collect(ranks);
     }

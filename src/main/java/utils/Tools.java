@@ -24,7 +24,7 @@ public class Tools {
         return false;
     }
 
-    public static OutQ2 getLocationsRanking(Iterable<ValQ2> list) {
+    public static OutQ2 getLocationsRanking(Iterable<ValQ2> list, String window) {
         List<ValQ2> high = new ArrayList<>();
         List<Long> highIds = new ArrayList<>();
         List<ValQ2> low = new ArrayList<>();
@@ -63,7 +63,7 @@ public class Tools {
             lowIds.add(minId);
             low.add(min);
         }
-        return new OutQ2(high,low);
+        return new OutQ2(high,low,window);
     }
 
     public static Timestamp getMonthSlot(Timestamp timestamp){
@@ -73,7 +73,6 @@ public class Tools {
         int month = timestamp.toLocalDateTime().getMonthValue();
 
         String ts = String.format("%d-%02d-01 00:00:00", year, month);
-        System.out.println(timestamp + " -> " + ts);
         return Timestamp.valueOf(ts);
     }
 
@@ -141,7 +140,7 @@ public class Tools {
         return list;
     }
 
-    public static OutputQuery cellStatisticsOnRow(Iterable<ValQ3> iterable, Timestamp window) {
+    public static OutputQuery cellStatisticsOnRow(Iterable<ValQ3> iterable, Timestamp window, String windowType) {
         List<ValQ3> rows = new ArrayList<>();
         Iterator<ValQ3> iterator = iterable.iterator();
         for (int i = 0; i<16; i++){
@@ -154,7 +153,7 @@ public class Tools {
             rows.set(pos,actual);
         }
 
-        return new OutQ3(rows);
+        return new OutQ3(rows, windowType);
     }
 
     public static StreamingFileSink<OutputQuery> buildSink (String outputPath) {

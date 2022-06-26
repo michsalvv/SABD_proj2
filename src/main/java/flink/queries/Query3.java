@@ -20,6 +20,7 @@
  * – every 1 week (event time)
  */
 
+// TODO finire windowing per tutte le taglie.
 package flink.queries;
 
 import flink.deserialize.Event;
@@ -104,7 +105,7 @@ public class Query3 extends Query {
 
         var resultRow = statistics
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .process(new CellStatistics());
+                .process(new CellStatistics(Config.HOUR));
 
 //        resultRow.print();
 

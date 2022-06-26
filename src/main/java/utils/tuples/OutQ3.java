@@ -1,20 +1,27 @@
 package utils.tuples;
 
+import utils.Config;
+
 import java.sql.Timestamp;
 import java.util.List;
 
 public class OutQ3 implements OutputQuery {
     String header = buildHeader();
+    String window;
+    Timestamp slotTimestamp;
+
+
 
     private static final String delimiter = ";";
     private List<ValQ3> row;
 
     @Override
     public String toCSV() {
-        Timestamp timeslot = row.get(0).getTimestamp();
-        System.out.println("Writing Results for Window: " + timeslot);
+        slotTimestamp = row.get(0).getTimestamp();
+        String slot = getTimestampSlot();
+        System.out.println("Writing Results for Window: " + slot);
         StringBuilder builder = new StringBuilder();
-        builder.append(timeslot.toString()).append(delimiter);
+        builder.append(slot).append(delimiter);
         for (ValQ3 val :row) {
             builder.append(val.getCell_id()).append(delimiter);
             builder.append(val.getMean_temp()).append(delimiter);
@@ -32,8 +39,9 @@ public class OutQ3 implements OutputQuery {
         return header;
     }
 
-    public OutQ3(List<ValQ3> row) {
+    public OutQ3(List<ValQ3> row, String window) {
         this.row = row;
+        this.window = window;
     }
 
     @Override
@@ -51,5 +59,18 @@ public class OutQ3 implements OutputQuery {
         }
         header = header + "\n";
         return header;
+    }
+
+    public String getTimestampSlot() {
+        if (window.equals(Config.HOUR)) {
+            return slotTimestamp.toString().substring(0,16);
+        }
+        if (window.equals(Config.WEEK)) {
+            return slotTimestamp.toString().substring(0,10);
+        }
+        if (window.equals(Config.MONTH)) {
+            return slotTimestamp.toString().substring(0,7);
+        }
+        return slotTimestamp.toString();
     }
 }

@@ -1,5 +1,7 @@
 package utils.tuples;
 
+import utils.Config;
+
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -11,13 +13,17 @@ public class OutQ2 implements OutputQuery {
     private static final String delimiter = ";";
     private List<ValQ2> highMean;
     private List<ValQ2> lowMean;
+    String window;
+    Timestamp slotTimestamp;
+
 
     @Override
     public String toCSV() {
-        Timestamp timeslot = highMean.get(0).getTimestamp();
-        System.out.println("Writing Results for Window: " + timeslot);
+        slotTimestamp = highMean.get(0).getTimestamp();
+        String slot = getTimestampSlot();
+        System.out.println("Writing Results for Window: " + slot);
         StringBuilder builder = new StringBuilder();
-        builder.append(timeslot.toString()).append(delimiter);
+        builder.append(slot).append(delimiter);
         for (ValQ2 val :highMean) {
             builder.append(val.getLocation()).append(delimiter);
             builder.append(val.getMeanTemperature()).append(delimiter);
@@ -40,9 +46,10 @@ public class OutQ2 implements OutputQuery {
         return header;
     }
 
-    public OutQ2(List<ValQ2> high, List<ValQ2> low ) {
+    public OutQ2(List<ValQ2> high, List<ValQ2> low, String window) {
         this.highMean = high;
         this.lowMean = low;
+        this.window = window;
     }
 
     @Override
@@ -51,5 +58,18 @@ public class OutQ2 implements OutputQuery {
                 "highMean=" + highMean +
                 ", lowMean=" + lowMean +
                 '}';
+    }
+
+    public String getTimestampSlot() {
+        if (window.equals(Config.HOUR)) {
+            return slotTimestamp.toString().substring(0,16);
+        }
+        if (window.equals(Config.WEEK)) {
+            return slotTimestamp.toString().substring(0,10);
+        }
+        if (window.equals(Config.MONTH)) {
+            return slotTimestamp.toString().substring(0,7);
+        }
+        return slotTimestamp.toString();
     }
 }

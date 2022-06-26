@@ -2,10 +2,18 @@ package flink.queries.aggregate;
 
 import flink.deserialize.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
+import utils.Config;
 import utils.Tools;
 import utils.tuples.ValQ2;
 
 public class AvgQ2 implements AggregateFunction<Event, AccumulatorQ2, ValQ2> {
+    String windowType;
+
+    public AvgQ2(String windowType) {
+        this.windowType = windowType;
+    }
+
+
     public AccumulatorQ2 createAccumulator() {
         return new AccumulatorQ2();
     }
@@ -33,7 +41,15 @@ public class AvgQ2 implements AggregateFunction<Event, AccumulatorQ2, ValQ2> {
         result.setLocation(acc.location);
         result.setMeanTemperature(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
+        if (windowType.equals(Config.HOUR)) {
+            result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.WEEK)) {
+            result.setTimestamp(Tools.getWeekSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.MONTH)) {
+            result.setTimestamp(Tools.getMonthSlot(acc.last_timestamp));
+        }
         return result;
     }
 }

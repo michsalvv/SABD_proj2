@@ -36,7 +36,7 @@ public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuer
     @Override
     public OutQ1 getResult(AccumulatorQ1 acc) {
         double mean = acc.sum / (double) acc.count;
-        OutQ1 result = new OutQ1();
+        OutQ1 result = new OutQ1(windowType);
         result.setSensor_id(acc.sensor_id);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);

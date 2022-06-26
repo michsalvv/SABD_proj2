@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import flink.queries.aggregate.AvgQ2;
 import utils.CSVEncoder;
 import utils.Config;
+import utils.Tools;
 import utils.tuples.OutputQuery;
 
 import java.util.concurrent.TimeUnit;
@@ -42,28 +43,47 @@ public class Query2 extends Query {
     @Override
     public void execute() throws Exception {
 
-        var keyed = src.keyBy(event -> event.getLocation())
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)));
+        var keyed = src
+                .keyBy(event -> event.getLocation());
 
-        var mean = keyed.aggregate(new AvgQ2())
+        var hourResult = keyed
+                // Calcolo Media
+                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .aggregate(new AvgQ2(Config.HOUR))
                 .setParallelism(5)
-                .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)));
-
-        var result = mean.process(new LocationRanking())
+                // Calcolo Ranking
+                .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .process(new LocationRanking(Config.HOUR))
                 .setParallelism(1);
 
-        StreamingFileSink<OutputQuery> sink = StreamingFileSink
-                .forRowFormat(new Path(outputPath), new CSVEncoder())
-                .withRollingPolicy(
-                        DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
-                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
-                                .withMaxPartSize(1024 * 1024 * 1024)
-                                .build())
-                .withOutputFileConfig(Config.outputFileConfig)
-                .build();
+        var weekResult = keyed
+                // Calcolo Media
+                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .aggregate(new AvgQ2(Config.WEEK))
+                .setParallelism(5)
+                // Calcolo Ranking
+                .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
+                .process(new LocationRanking(Config.WEEK))
+                .setParallelism(1);
 
-        result.addSink(sink);
+        var monthResult = keyed
+                // Calcolo Media
+                .window(TumblingEventTimeWindows.of(Time.days(30)))
+                .aggregate(new AvgQ2(Config.MONTH))
+                .setParallelism(5)
+                // Calcolo Ranking
+                .windowAll(TumblingEventTimeWindows.of(Time.days(30)))
+                .process(new LocationRanking(Config.MONTH))
+                .setParallelism(1);
+
+        var hourSink = Tools.buildSink("q2-res/hourly");
+        var weekSink = Tools.buildSink("q2-res/weekly");
+        var monthSink = Tools.buildSink("q2-res/monthly");
+
+        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
+        monthResult.addSink(monthSink);             // Il sink deve avere parallelismo 1
+
         env.execute("Query 2");
     }
 }
