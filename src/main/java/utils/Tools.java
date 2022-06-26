@@ -73,6 +73,7 @@ public class Tools {
         int month = timestamp.toLocalDateTime().getMonthValue();
 
         String ts = String.format("%d-%02d-01 00:00:00", year, month);
+        System.out.println(timestamp + " -> " + ts);
         return Timestamp.valueOf(ts);
     }
 

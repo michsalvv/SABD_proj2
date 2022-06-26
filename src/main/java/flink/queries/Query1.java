@@ -60,20 +60,21 @@ public class Query1 extends Query {
                 .aggregate(new AvgQ1(Config.WEEK))
                 .setParallelism(4);
 
+        //TODO funziona solo con finestra di 30, occorre ragionare sul perché. Con 31 splitta in due finestre, non trovo il senso.
         var monthResult = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(31)))
+                .window(TumblingEventTimeWindows.of(Time.days(30)))
 //                .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new AvgQ1(Config.MONTH))
                 .setParallelism(4);
 
         monthResult.print();
 //
-//        var hourSink = Tools.buildSink("q1-res/hourly");
-//        var weekSink = Tools.buildSink("q1-res/weekly");
+        var hourSink = Tools.buildSink("q1-res/hourly");
+        var weekSink = Tools.buildSink("q1-res/weekly");
         var monthSink = Tools.buildSink("q1-res/monthly");
 
-//        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
-//        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
         monthResult.addSink(monthSink);               // Il sink deve avere parallelismo 1
         env.execute("Query 1");
     }
