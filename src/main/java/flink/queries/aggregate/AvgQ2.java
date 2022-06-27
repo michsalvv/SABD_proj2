@@ -1,6 +1,6 @@
 package flink.queries.aggregate;
 
-import flink.deserialize.Event;
+import utils.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Tools;
 import utils.tuples.ValQ2;

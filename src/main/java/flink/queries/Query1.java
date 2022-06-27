@@ -1,7 +1,6 @@
 package flink.queries;
 
-import flink.deserialize.Event;
-import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
+import utils.Event;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;

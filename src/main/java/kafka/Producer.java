@@ -4,6 +4,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import kafka.exception.SimulationTimeException;
+import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import utils.Config;
 
 import java.io.BufferedReader;
@@ -12,7 +14,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.Properties;
 
 public class Producer {
@@ -20,18 +21,19 @@ public class Producer {
     public static void main(String[] args) throws InterruptedException, IOException, ParseException {
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "kafka-broker:29092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:29092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         org.apache.kafka.clients.producer.Producer<Object, String> producer = new KafkaProducer<>(props);
 
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.ULTRA_REDUCED_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
+        Integer key = 0;
         while ((line = br.readLine()) != null) {
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
@@ -44,7 +46,8 @@ public class Producer {
                 Double longitude = Double.parseDouble(values[4]);
                 var message = String.format("%s;%d;%,.4f;%d;%,.4f;%,.4f;", timestamp, sensor_id, temperature,
                         location, latitude, longitude);
-                var producerRecord = new ProducerRecord<>("flink-events", message);
+                var producerRecord = new ProducerRecord<>("flink-events", 0, timestamp.getTime(),
+                        null, message);
                 if (first) {
                     first = false;
                 } else {
@@ -61,6 +64,7 @@ public class Producer {
                 producer.send(producerRecord);
 //                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
+                key++;
             }
         }
 //        producer.send(new ProducerRecord<>("flink-events", String.format("%s;%d;%,.4f;", "2026-01-01 00:00:00", 0, 0.2)));

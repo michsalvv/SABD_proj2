@@ -17,7 +17,7 @@
 
 package flink.queries;
 
-import flink.deserialize.Event;
+import utils.Event;
 import flink.queries.aggregate.AvgQ3;
 import flink.queries.process.MedianQ3;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -60,7 +60,7 @@ public class Query3 extends Query {
                 }).setParallelism(1);
 
         var keyed = mapped
-                .keyBy(v -> v.getCell_id());
+                .keyBy(ValQ3::getCell_id);
 
         var mean = keyed
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))

@@ -8,7 +8,7 @@
 
 package flink.queries;
 
-import flink.deserialize.Event;
+import utils.Event;
 import flink.queries.process.LocationRanking;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -37,7 +37,7 @@ public class Query2 extends Query {
     @Override
     public void execute() throws Exception {
 
-        var keyed = src.keyBy(event -> event.getLocation());
+        var keyed = src.keyBy(Event::getLocation);
         var win = keyed.window(TumblingEventTimeWindows.of(Time.minutes(60)));
         var mean = win.aggregate(new AvgQ2())
                 .setParallelism(5);

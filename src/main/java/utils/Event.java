@@ -1,4 +1,4 @@
-package flink.deserialize;
+package utils;
 
 import utils.Tools;
 
@@ -16,6 +16,7 @@ public class Event implements Serializable {
 
     public Event(String rawMessage) {
         var values = rawMessage.split(";");
+        System.out.println("timestamp: " + values[0]);
         this.timestamp = Timestamp.valueOf(values[0]);
         this.sensor_id = Long.parseLong(values[1]);
         this.temperature = Tools.stringToDouble(values[2]);

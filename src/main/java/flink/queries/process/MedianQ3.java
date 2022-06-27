@@ -3,7 +3,6 @@ package flink.queries.process;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-import scala.tools.nsc.doc.model.Val$class;
 import utils.tuples.ValQ3;
 
 public class MedianQ3 extends ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWindow> {
