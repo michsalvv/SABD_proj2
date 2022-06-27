@@ -64,11 +64,11 @@ public class OutQ2 implements OutputQuery {
         if (window.equals(Config.HOUR)) {
             return slotTimestamp.toString().substring(0,16);
         }
-        if (window.equals(Config.WEEK)) {
+        if (window.equals(Config.DAY)) {
             return slotTimestamp.toString().substring(0,10);
         }
-        if (window.equals(Config.MONTH)) {
-            return slotTimestamp.toString().substring(0,7);
+        if (window.equals(Config.WEEK)) {
+            return slotTimestamp.toString().substring(0,10);
         }
         return slotTimestamp.toString();
     }

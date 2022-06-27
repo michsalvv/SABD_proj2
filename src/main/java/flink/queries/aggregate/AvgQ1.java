@@ -20,9 +20,9 @@ public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuer
     @Override
     public AccumulatorQ1 add(Event values, AccumulatorQ1 acc) {
         acc.sum += values.getTemperature();
-        acc.count++;
         acc.sensor_id = values.getSensor_id();
         acc.last_timestamp = values.getTimestamp();
+        acc.count++;
         return acc;
     }
 

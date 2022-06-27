@@ -4,7 +4,6 @@ import flink.deserialize.EventDeserializer;
 import flink.deserialize.Event;
 import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
@@ -24,10 +23,9 @@ public class Main {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // start a checkpoint every 30s
-        env.enableCheckpointing(30000);
+        env.enableCheckpointing(3000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(15000);
-
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
         // checkpoints have to complete within one minute, or are discarded
         env.getCheckpointConfig().setCheckpointTimeout(60000);
         // only two consecutive checkpoint failures are tolerated
@@ -36,6 +34,9 @@ public class Main {
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         // sets the checkpoint storage where checkpoint snapshots will be written
         env.getCheckpointConfig().setCheckpointStorage("file:///opt/flink/flink-checkpoints");
+
+        env.setParallelism(12);
+
         // enable checkpointing with finished tasks
         Configuration config = new Configuration();
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
@@ -46,15 +47,14 @@ public class Main {
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-//                .setUnbounded(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new EventDeserializer())
                 .build();
 
         // BIBBIA
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
-                "Kafka Source");
+                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()), "Kafka Source")
+                .setParallelism(1);
 
         Query q1 = new Query1(env,src);
         Query q2 = new Query2(env,src);

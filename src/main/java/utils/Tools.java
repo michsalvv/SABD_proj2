@@ -89,6 +89,17 @@ public class Tools {
         return Timestamp.valueOf(ts);
     }
 
+    public static Timestamp getDaySlot(Timestamp timestamp){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp);
+        int year = timestamp.toLocalDateTime().getYear();
+        int month = timestamp.toLocalDateTime().getMonthValue();
+        int day = timestamp.toLocalDateTime().getDayOfMonth();
+
+        String ts = String.format("%d-%02d-%02d 00:00:00", year, month, day);
+        return Timestamp.valueOf(ts);
+    }
+
     public static Timestamp getHourSlot(Timestamp timestamp){
 
         Calendar cal = Calendar.getInstance();

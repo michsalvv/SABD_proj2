@@ -17,7 +17,7 @@ public class EventDeserializer implements DeserializationSchema<Event> {
             validateCoordinates(event.getLatitude(),event.getLongitude());
             return event;
         } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
-//            e.printStackTrace();
+//            System.out.println("Event Discarded: " + event);
             return null;
         }
     }
@@ -25,10 +25,9 @@ public class EventDeserializer implements DeserializationSchema<Event> {
     @Override
     public boolean isEndOfStream(Event nextElement) {
         if (nextElement.getSensor_id() == -1){
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             return true;
         }
-        return true;
+        return false;
     }
 
     @Override

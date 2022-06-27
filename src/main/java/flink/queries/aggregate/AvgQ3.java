@@ -42,11 +42,12 @@ public class AvgQ3 implements AggregateFunction<ValQ3, AccumulatorQ3, ValQ3> {
         if (windowType.equals(Config.HOUR)) {
             result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
         }
+        if (windowType.equals(Config.DAY)) {
+            result.setTimestamp(Tools.getDaySlot(acc.last_timestamp));
+        }
         if (windowType.equals(Config.WEEK)) {
             result.setTimestamp(Tools.getWeekSlot(acc.last_timestamp));
         }
-        if (windowType.equals(Config.MONTH)) {
-            result.setTimestamp(Tools.getMonthSlot(acc.last_timestamp));
-        }        return result;
+        return result;
     }
 }

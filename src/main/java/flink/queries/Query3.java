@@ -20,7 +20,6 @@
  * – every 1 week (event time)
  */
 
-// TODO valutare con i soci se conviene ciclo for dove si setta size=Time.(finestra) e string win = Config.FINESTRA
 package flink.queries;
 
 import flink.deserialize.Event;
@@ -66,12 +65,10 @@ public class Query3 extends Query {
         Grid grid = new Grid(lat1, lon1, lat2, lon2, Config.SPLIT_FACTOR);
 
         var keyed = src
-                .filter(event -> isSensorInGrid(event.getLatitude(),event.getLongitude()))
+                .filter(event -> isSensorInGrid(event.getLatitude(), event.getLongitude()))
                 .map(event -> new ValQ3(event.getTimestamp(),
                         event.getTemperature(), 0D, grid.getCellFromEvent(event).getId()))
-                .setParallelism(1)
                 .keyBy(v -> v.getCell_id());
-
 
         /**
          * Calcolo su finestra di un'ora
@@ -79,34 +76,80 @@ public class Query3 extends Query {
         // Calcolo della media
         var hourMean = keyed
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .aggregate(new AvgQ3(Config.HOUR));
+                .aggregate(new AvgQ3(Config.HOUR))
+                .name("Hourly Window Mean AggregateFunction");
 
         // Calcolo della mediana
         var hourMedian = keyed
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .process(new Median());
+                .process(new Median())
+                .name("Hourly Window Median ProcessFunction")
+                .setParallelism(1);
+
 
         // [MEAN|MEDIAN]
         var hourJoined = hourMean
                 .join(hourMedian)
-                .where(e->e.getCell_id())
-                .equalTo(f->f.getCell_id())
+                .where(e -> e.getCell_id())
+                .equalTo(f -> f.getCell_id())
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)));
 
         // Campi di interesse per l'output
-        var hourStatistics = hourJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
+        var hourStatistics = hourJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1, v2) -> {
             var id = v1.getCell_id();
             var meanTemp = v1.getMean_temp();
             var medianTemp = v2.getMedian_temp();
             var time = v1.getTimestamp();
             var occ = v1.getOccurrences();
-            return new ValQ3(time,meanTemp,medianTemp,id,occ);
+            return new ValQ3(time, meanTemp, medianTemp, id, occ);
         });
 
         // Unione dei risultati della singola finestra sulla stessa riga
         var hourResult = hourStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
-                .process(new CellStatistics(Config.HOUR));
+                .process(new CellStatistics(Config.HOUR))
+                .name("OutputFormatter ProcessFunction")
+                .setParallelism(1);
+
+        /**
+         * Calcolo su finestra di un giorno
+         */
+        // Calcolo della media
+        var dayMean = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(1)))
+                .aggregate(new AvgQ3(Config.DAY))
+                .name("Daily Window Mean AggregateFunction");
+
+        // Calcolo della mediana
+        var dayMedian = keyed
+                .window(TumblingEventTimeWindows.of(Time.days(1)))
+                .process(new Median())
+                .name("Daily Window Median ProcessFunction")
+                .setParallelism(1);
+
+        // [MEAN|MEDIAN]
+        var dayJoined = dayMean
+                .join(dayMedian)
+                .where(e -> e.getCell_id())
+                .equalTo(f -> f.getCell_id())
+                .window(TumblingEventTimeWindows.of(Time.days(1)));
+
+        // Campi di interesse per l'output
+        var dayStatistics = dayJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1, v2) -> {
+            var id = v1.getCell_id();
+            var meanTemp = v1.getMean_temp();
+            var medianTemp = v2.getMedian_temp();
+            var time = v1.getTimestamp();
+            var occ = v1.getOccurrences();
+            return new ValQ3(time, meanTemp, medianTemp, id, occ);
+        });
+
+        // Unione dei risultati della singola finestra sulla stessa riga
+        var dayResult = dayStatistics
+                .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
+                .process(new CellStatistics(Config.DAY))
+                .name("OutputFormatter ProcessFunction")
+                .setParallelism(1);
 
         /**
          * Calcolo su finestra di una settimana
@@ -114,77 +157,47 @@ public class Query3 extends Query {
         // Calcolo della media
         var weekMean = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
-                .aggregate(new AvgQ3(Config.WEEK));
+                .aggregate(new AvgQ3(Config.WEEK))
+                .name("Weekly Window Mean AggregateFunction");
 
         // Calcolo della mediana
         var weekMedian = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
-                .process(new Median());
+                .process(new Median())
+                .name("Weekly Window Median ProcessFunction")
+                .setParallelism(1);
 
         // [MEAN|MEDIAN]
         var weekJoined = weekMean
                 .join(weekMedian)
-                .where(e->e.getCell_id())
-                .equalTo(f->f.getCell_id())
+                .where(e -> e.getCell_id())
+                .equalTo(f -> f.getCell_id())
                 .window(TumblingEventTimeWindows.of(Time.days(7)));
 
         // Campi di interesse per l'output
-        var weekStatistics = weekJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
+        var weekStatistics = weekJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1, v2) -> {
             var id = v1.getCell_id();
             var meanTemp = v1.getMean_temp();
             var medianTemp = v2.getMedian_temp();
             var time = v1.getTimestamp();
             var occ = v1.getOccurrences();
-            return new ValQ3(time,meanTemp,medianTemp,id,occ);
+            return new ValQ3(time, meanTemp, medianTemp, id, occ);
         });
 
         // Unione dei risultati della singola finestra sulla stessa riga
         var weekResult = weekStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
-                .process(new CellStatistics(Config.WEEK));
-
-        /**
-         * Calcolo su finestra di un mese
-         */
-        // Calcolo della media
-        var monthMean = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(30)))
-                .aggregate(new AvgQ3(Config.MONTH));
-
-        // Calcolo della mediana
-        var monthMedian = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(30)))
-                .process(new Median());
-
-        // [MEAN|MEDIAN]
-        var monthJoined = monthMean
-                .join(monthMedian)
-                .where(e->e.getCell_id())
-                .equalTo(f->f.getCell_id())
-                .window(TumblingEventTimeWindows.of(Time.days(30)));
-
-        // Campi di interesse per l'output
-        var monthStatistics = monthJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1,v2) -> {
-            var id = v1.getCell_id();
-            var meanTemp = v1.getMean_temp();
-            var medianTemp = v2.getMedian_temp();
-            var time = v1.getTimestamp();
-            var occ = v1.getOccurrences();
-            return new ValQ3(time,meanTemp,medianTemp,id,occ);
-        });
-
-        // Unione dei risultati della singola finestra sulla stessa riga
-        var monthResult = monthStatistics
-                .windowAll(TumblingEventTimeWindows.of(Time.days(30)))
-                .process(new CellStatistics(Config.MONTH));
+                .process(new CellStatistics(Config.WEEK))
+                .name("OutputFormatter ProcessFunction")
+                .setParallelism(1);
 
         var hourSink = Tools.buildSink("results/q3-res/hourly");
+        var daySink = Tools.buildSink("results/q3-res/daily");
         var weekSink = Tools.buildSink("results/q3-res/weekly");
-        var monthSink = Tools.buildSink("results/q3-res/monthly");
 
-        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
-        monthResult.addSink(monthSink);             // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
 
         env.execute("Query 3");
     }

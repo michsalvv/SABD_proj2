@@ -37,35 +37,34 @@ public class Query1 extends Query {
 
         var keyed = src
                 .filter(event -> event.getSensor_id() < 10000)
-//                .setParallelism(2)
                 .keyBy(Event::getSensor_id);
 
         var hourResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.hours(1)))
-//                .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new AvgQ1(Config.HOUR))
-                .setParallelism(4);
+                .name("Hourly Window Mean AggregateFunction");
+
 
         var weekResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
-//                .allowedLateness(Time.minutes(2))                                           // funziona
                 .aggregate(new AvgQ1(Config.WEEK))
-                .setParallelism(4);
+                .name("Weekly Window Mean AggregateFunction");
+
 
         //TODO funziona solo con finestra di 30, occorre ragionare sul perché. Con 31 splitta in due finestre, non trovo il senso.
         var monthResult = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(30)))
-//                .allowedLateness(Time.minutes(2))                                           // funziona
+                .window(TumblingEventTimeWindows.of(Time.days(31)))
                 .aggregate(new AvgQ1(Config.MONTH))
-                .setParallelism(4);
+                .name("Monthly Window Mean AggregateFunction");
+
 
         var hourSink = Tools.buildSink("results/q1-res/hourly");
         var weekSink = Tools.buildSink("results/q1-res/weekly");
         var monthSink = Tools.buildSink("results/q1-res/monthly");
 
-        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
-        monthResult.addSink(monthSink);             // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
         env.execute("Query 1");
     }
 }

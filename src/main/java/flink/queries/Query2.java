@@ -49,39 +49,43 @@ public class Query2 extends Query {
                 // Calcolo Media
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .aggregate(new AvgQ2(Config.HOUR))
-                .setParallelism(5)
+                .name("Hourly Window Mean AggregateFunction")
                 // Calcolo Ranking
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new LocationRanking(Config.HOUR))
+                .name("Hourly Window Ranking ProcessFunction")
+                .setParallelism(1);
+
+        var dayResult = keyed
+                // Calcolo Media
+                .window(TumblingEventTimeWindows.of(Time.days(1)))
+                .aggregate(new AvgQ2(Config.DAY))
+                .name("Daily Window Mean AggregateFunction")
+                // Calcolo Ranking
+                .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
+                .process(new LocationRanking(Config.DAY))
+                .name("Daily Window Ranking ProcessFunction")
                 .setParallelism(1);
 
         var weekResult = keyed
                 // Calcolo Media
                 .window(TumblingEventTimeWindows.of(Time.days(7)))
                 .aggregate(new AvgQ2(Config.WEEK))
-                .setParallelism(5)
+                .name("Weekly Window Mean AggregateFunction")
                 // Calcolo Ranking
                 .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
                 .process(new LocationRanking(Config.WEEK))
+                .name("Weekly Window Ranking ProcessFunction")
                 .setParallelism(1);
 
-        var monthResult = keyed
-                // Calcolo Media
-                .window(TumblingEventTimeWindows.of(Time.days(30)))
-                .aggregate(new AvgQ2(Config.MONTH))
-                .setParallelism(5)
-                // Calcolo Ranking
-                .windowAll(TumblingEventTimeWindows.of(Time.days(30)))
-                .process(new LocationRanking(Config.MONTH))
-                .setParallelism(1);
 
         var hourSink = Tools.buildSink("results/q2-res/hourly");
+        var daySink = Tools.buildSink("results/q2-res/daily");
         var weekSink = Tools.buildSink("results/q2-res/weekly");
-        var monthSink = Tools.buildSink("results/q2-res/monthly");
 
-        hourResult.addSink(hourSink);               // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink);               // Il sink deve avere parallelismo 1
-        monthResult.addSink(monthSink);             // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);                 // Il sink deve avere parallelismo 1
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
 
         env.execute("Query 2");
     }

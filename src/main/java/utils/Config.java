@@ -16,6 +16,7 @@ public class Config {
 
     // WINDOW TYPES
     public static final String HOUR = "hour";
+    public static final String DAY = "day";
     public static final String WEEK = "week";
     public static final String MONTH = "month";
 
