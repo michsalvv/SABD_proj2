@@ -61,10 +61,10 @@ public class Query1 {
 
         var grouped = keyed
                 .groupByKey(Grouped.with(Serdes.Long(), EventSerde.Event()))
-                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(10)))
-                        .count();
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(10)))
+                        .reduce((o, v1) -> o);
 //
-        grouped.toStream().print(Printed.toSysOut());
+        grouped.toStream().to("output", Produced.with(WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), EventSerde.Event()));
 
 
 //                map((aLong, s) -> new KeyValue<>(aLong, s));     // Gli danno fastidio gli eventi nulli ovvero quelli che hanno temp negativa, quindi serve sto controllo maledetto
