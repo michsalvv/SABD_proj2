@@ -8,9 +8,12 @@ import java.nio.charset.StandardCharsets;
 public class EventSerializer implements Serializer<Event> {
     @Override
     public byte[] serialize(String topic, Event data) {
-        if (data == null)
+        System.out.println("TO SERIALIZE: "+data.toString_reduced());
+        if (data == null) {
+            System.out.println("NULL");
             return null;
-        return data.toString().getBytes(StandardCharsets.UTF_8);
+        }
+        return data.toString_reduced().getBytes(StandardCharsets.UTF_8);
     }
 
 

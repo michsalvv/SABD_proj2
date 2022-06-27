@@ -38,6 +38,15 @@ public class Event implements Serializable {
                 ", longitude=" + longitude +
                 '}';
     }
+
+    public String toString_reduced() {
+        return        timestamp +
+                ";" + sensor_id +
+                ";" + temperature +
+                ";" + location +
+                ";" + latitude +
+                ";" + longitude;
+    }
     public Timestamp getTimestamp() {
         return timestamp;
     }
