@@ -14,6 +14,8 @@ import flink.queries.Query1;
 import flink.queries.Query2;
 import flink.queries.Query3;
 
+import java.time.Duration;
+
 public class Main {
     static Query query;
     public static void main(String[] args) throws Exception {
@@ -48,9 +50,12 @@ public class Main {
                 .build();
 
         // BIBBIA
+//        var src = env.fromSource(source, WatermarkStrategy
+//                        .<Event>forMonotonousTimestamps()
+//                        .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
+//                "Kafka Source");
         var src = env.fromSource(source, WatermarkStrategy
-                .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
+                        .<Event>forMonotonousTimestamps(),
                 "Kafka Source");
 
         Query q1 = new Query1(env,src);

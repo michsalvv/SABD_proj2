@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 public class Producer {
@@ -57,7 +59,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-                System.out.printf("Send: %s%n", message);
+//                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }

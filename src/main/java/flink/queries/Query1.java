@@ -3,11 +3,13 @@ package flink.queries;
 import flink.deserialize.Event;
 import org.apache.flink.streaming.api.functions.sink.filesystem.OutputFileConfig;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.functions.sink.filesystem.RollingPolicy;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import flink.queries.aggregate.AvgQ1;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.CSVEncoder;
@@ -44,8 +46,8 @@ public class Query1 extends Query {
                 .forRowFormat(new Path(outputPath), new CSVEncoder())
                 .withRollingPolicy(
                         DefaultRollingPolicy.builder()
-                                .withRolloverInterval(TimeUnit.MINUTES.toMinutes(2))
-                                .withInactivityInterval(TimeUnit.MINUTES.toMinutes(1))
+                                .withRolloverInterval(TimeUnit.SECONDS.toSeconds(30))
+                                .withInactivityInterval(TimeUnit.SECONDS.toSeconds(30))
                                 .withMaxPartSize(1024 * 1024 * 1024)
                                 .build())
                 .withOutputFileConfig(Config.outputFileConfig)

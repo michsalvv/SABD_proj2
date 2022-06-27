@@ -1,5 +1,7 @@
 package utils.tuples;
 
+import utils.Tools;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -39,6 +41,18 @@ public class ValQ1 implements Serializable, OutputQuery {
 
     public void setTimestamp(Timestamp timestamp) {
         this.slotTimestamp = timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp, String slot) {
+        switch (slot){
+            case "HOUR":
+                this.slotTimestamp = Tools.getHourSlot(timestamp);
+                break;
+            case "SECONDS":
+                this.slotTimestamp = Tools.getSecondsSlot(timestamp, 30);
+                break;
+
+        }
     }
 
     public void setSensor_id(Long sensor_id) {

@@ -3,6 +3,7 @@ package kafka.queries;
 import flink.deserialize.Event;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.*;
@@ -17,7 +18,6 @@ import java.util.Properties;
 public class Query1 {
 
     static final StreamsBuilder builder = new StreamsBuilder();
-    private static Logger LOGGER = LoggerFactory.getLogger(Query1.class);
 
     public static void main(String[] args) {
         final Properties props = new Properties();
@@ -33,15 +33,20 @@ public class Query1 {
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, String.valueOf(0));
 //        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
 
-        KStream<Long, Event> sourceStream = builder.stream("flink-events", Consumed.with(Serdes.Long(), EventSerde.Event()));
-        KTable<Windowed<Long>, Long> output = sourceStream.
-                filter((s, event) -> event != null && event.getSensor_id() < 100000)        // Gli danno fastidio gli eventi nulli ovvero quelli che hanno temp negativa, quindi serve sto controllo maledetto
-                        .groupByKey()
-                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(30)))
-                        .count();
+        KStream<Long, String> sourceStream = builder.stream("flink-events", Consumed.with(Serdes.Long(), EventSerde.Event()));
+
+        KStream<Object, Object> output = sourceStream.
+                filter((aLong, s) -> {
+                    System.out.println("KEY: "+aLong);
+                    System.out.println("VALUE: "+s);
+                    return true;
+                }).map((aLong, s) -> new KeyValue<>(aLong, s));     // Gli danno fastidio gli eventi nulli ovvero quelli che hanno temp negativa, quindi serve sto controllo maledetto
+//                        .groupByKey();
+//                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(30)))
+//                        .count();
 
 
-        output.toStream().foreach((aLong, event) -> System.out.println(aLong + " --- " + event));
+        output.print(Printed.toSysOut());
 //        output.foreach((aLong, event) -> System.out.println(aLong + " --- " +event));
 //                .selectKey((KeyValueMapper<Long, Event, Long>) (key, event) -> event.getSensor_id());
 //
