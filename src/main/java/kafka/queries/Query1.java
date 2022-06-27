@@ -28,9 +28,12 @@ public class Query1 {
 
         // Give the Streams application a unique name.
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "kafka-streams");
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, "12312dad" + new Timestamp(System.currentTimeMillis()));
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, "test" + new Timestamp(System.currentTimeMillis()));
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
         props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "exactly_once");
+
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+
 //        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.Long().getClass());
 //        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
@@ -136,8 +139,8 @@ public class Query1 {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                streams.cleanUp();
                 streams.close();
+                streams .cleanUp();
             }
         }));
     }
