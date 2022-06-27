@@ -3,6 +3,8 @@ package kafka;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import kafka.exception.SimulationTimeException;
+import org.apache.kafka.common.serialization.IntegerSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import utils.Config;
 
 import java.io.BufferedReader;
@@ -11,8 +13,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Properties;
 
 public class Producer {
@@ -29,7 +29,7 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader("data/reducedv2.csv"));
+        BufferedReader br = new BufferedReader(new FileReader(Config.REDUCED_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {

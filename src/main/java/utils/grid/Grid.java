@@ -1,10 +1,9 @@
 package utils.grid;
 
-import flink.deserialize.Event;
+import utils.Event;
 import scala.Serializable;
 import utils.Config;
 import utils.Tools;
-import utils.tuples.ValQ3;
 
 import java.util.ArrayList;
 import java.util.List;

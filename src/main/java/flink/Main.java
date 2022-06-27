@@ -1,7 +1,7 @@
 package flink;
 
-import flink.deserialize.EventDeserializer;
-import flink.deserialize.Event;
+import utils.serdes.EventDeserializer;
+import utils.Event;
 import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
