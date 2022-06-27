@@ -30,10 +30,9 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.REDUCED_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
-        Integer key = 0;
         while ((line = br.readLine()) != null) {
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
@@ -64,7 +63,6 @@ public class Producer {
                 producer.send(producerRecord);
 //                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
-                key++;
             }
         }
 //        producer.send(new ProducerRecord<>("flink-events", String.format("%s;%d;%,.4f;", "2026-01-01 00:00:00", 0, 0.2)));

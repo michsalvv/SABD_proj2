@@ -25,7 +25,7 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
         this.reflectionTypeToken = reflectionTypeToken;
     }
 
-    @Override
+    @Override //kafka-deserialize
     public Event deserialize(String topic, byte[] bytes) {
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
@@ -37,15 +37,8 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
         }
     }
 
-    // La temperatura massima rilevabile del sensore varia da -40° a +85°
-    static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
-        if (temperature < -40 || temperature > 85) {
-            throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
-        }
-    }
-
-    @Override
-    public Event deserialize(byte[] bytes) throws IOException {
+    @Override   //flink-deserialize
+    public Event deserialize(byte[] bytes) {
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
@@ -64,5 +57,12 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
     @Override
     public TypeInformation<Event> getProducedType() {
         return TypeInformation.of(Event.class);
+    }
+
+    // La temperatura massima rilevabile del sensore varia da -40° a +85°
+    public static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
+        if (temperature < -40 || temperature > 85) {
+            throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
+        }
     }
 }
