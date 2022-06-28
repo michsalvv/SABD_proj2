@@ -1,5 +1,6 @@
 package utils.tuples;
 
+import com.clearspring.analytics.stream.cardinality.ICardinality;
 import utils.Tools;
 
 import java.io.Serializable;
@@ -30,9 +31,10 @@ public class ValQ2 implements Serializable {
 
     public static ValQ2 create(String rawMessage) throws ParseException {
         var values = rawMessage.split(";");
+        System.out.println("RAW: "+rawMessage);
         return new ValQ2(Timestamp.valueOf(values[0]),
-                Long.parseLong(values[3]),
-                Tools.stringToDouble(values[2]));
+                Long.parseLong(values[1]),
+                Tools.stringToDouble(values[3]));
     }
 
     public Timestamp getTimestamp() {
@@ -41,6 +43,7 @@ public class ValQ2 implements Serializable {
 
 
     public Double getMeanTemperature() {
+        if (meanTemperature == null) return 0d;
         return meanTemperature;
     }
 
@@ -77,5 +80,14 @@ public class ValQ2 implements Serializable {
                 ", temperature=" + meanTemperature +
                 ", occurrences=" + occurrences +
                 '}';
+    }
+
+    public String toCSV() {
+        return timestamp+";"+location+";"+occurrences+";"+meanTemperature;
+    }
+
+    public void addOccurrences() {
+        if (occurrences == null) this.occurrences=1l;
+        this.occurrences++;
     }
 }

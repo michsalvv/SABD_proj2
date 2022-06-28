@@ -1,10 +1,10 @@
 package kafka;
 
+import kafka.exception.SimulationTimeException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import kafka.exception.SimulationTimeException;
-import org.apache.kafka.common.serialization.IntegerSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import utils.Config;
 
 import java.io.BufferedReader;
@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
 
 public class Producer {
@@ -21,7 +22,7 @@ public class Producer {
 
         Properties props = new Properties();
         props.put("bootstrap.servers", "kafka-broker:29092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.LongSerializer");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         org.apache.kafka.clients.producer.Producer<Object, String> producer = new KafkaProducer<>(props);
@@ -29,14 +30,26 @@ public class Producer {
         boolean first = true;
         Timestamp previous = null;
 
-        BufferedReader br = new BufferedReader(new FileReader(Config.REDUCED_DATASET));
+        BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
         String line = br.readLine(); //skip the header
         System.out.println("Header: " + line);
         while ((line = br.readLine()) != null) {
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
+                Calendar cal = Calendar.getInstance();
                 var date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(values[5]);
-                Timestamp timestamp = new Timestamp(date.getTime());
+
+                DateTimeZone timeZone = DateTimeZone.forID( "Europe/Rome" );
+                DateTime dateTime = new DateTime( date, timeZone );
+                long ts = dateTime.getMillis();
+                Timestamp timestamp = new Timestamp(ts);
+//                System.out.println("-------------------------------------");
+//                System.out.println( "date: " + date );
+//                System.out.println( "dateTime: " + dateTime );
+//                System.out.println( "Millis: " + ts );
+//                System.out.println( "Our TS: " + timestamp );
+//                System.out.println("-------------------------------------");
+
                 Long sensor_id = Long.parseLong(values[0]);
                 Double temperature = Double.parseDouble(values[9]);
                 Long location = Long.parseLong(values[2]);
@@ -44,7 +57,8 @@ public class Producer {
                 Double longitude = Double.parseDouble(values[4]);
                 var message = String.format("%s;%d;%,.4f;%d;%,.4f;%,.4f;", timestamp, sensor_id, temperature,
                         location, latitude, longitude);
-                var producerRecord = new ProducerRecord<>("flink-events", 0, timestamp.getTime(), null, message);
+                var kafka_ts = ts + Config.CEST;
+                var producerRecord = new ProducerRecord<>("flink-events", 0, kafka_ts, null,  message);
                 if (first) {
                     first = false;
                 } else {

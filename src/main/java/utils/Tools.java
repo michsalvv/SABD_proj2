@@ -107,4 +107,26 @@ public class Tools {
         String ts = String.format("%d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, slot);
         return Timestamp.valueOf(ts);
     }
+
+    public static Timestamp getWeekSlot(Timestamp timestamp){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp);
+        int year = timestamp.toLocalDateTime().getYear();
+        int month = timestamp.toLocalDateTime().getMonthValue();
+        int day = timestamp.toLocalDateTime().getDayOfMonth();
+        int ceil = (day-1)/7;
+        int slot = ceil * 7 + 1;
+
+        String ts = String.format("%d-%02d-%02d 00:00:00", year, month, slot);
+        return Timestamp.valueOf(ts);
+    }
+    public static Timestamp getMonthSlot(Timestamp timestamp){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp);
+        int year = timestamp.toLocalDateTime().getYear();
+        int month = timestamp.toLocalDateTime().getMonthValue();
+
+        String ts = String.format("%d-%02d-01 00:00:00", year, month);
+        return Timestamp.valueOf(ts);
+    }
 }

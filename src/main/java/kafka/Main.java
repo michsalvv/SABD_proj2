@@ -1,6 +1,8 @@
 package kafka;
 
 import kafka.queries.Query1;
+import kafka.queries.Query2;
+import org.apache.flink.metrics.Metric;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
@@ -24,8 +26,7 @@ public class Main {
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "kafka-streams");
         props.put(StreamsConfig.CLIENT_ID_CONFIG, "consumer-" + new Timestamp(System.currentTimeMillis()));
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
-                Serdes.Integer().getClass().getName());
+        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 60 * 1000);
 
         final StreamsBuilder builder = new StreamsBuilder();
 
@@ -34,13 +35,14 @@ public class Main {
                         Consumed.with(Serdes.Integer(), CustomSerdes.Event()));
 
         Query q1 = new Query1(src, builder, props);
+        Query q2 = new Query2(src, builder, props);
 
         switch (args[0]) {
             case ("Q1"):
                 query = q1;
                 break;
             case ("Q2"):
-                //query = q2;
+                query = q2;
                 break;
         }
         query.execute();

@@ -13,7 +13,6 @@ public class Event implements Serializable {
     private Long location;
     private Double latitude;
     private Double longitude;
-    private Long occurrences;
 
     public Event(String rawMessage) {
         var values = rawMessage.split(";");
@@ -23,9 +22,6 @@ public class Event implements Serializable {
         this.latitude = Tools.stringToDouble(values[4]);
         this.longitude = Tools.stringToDouble(values[5]);
         this.location = Long.parseLong(values[3]);
-        if (values.length > 6) {
-            this.occurrences = Long.parseLong(values[6]);
-        }
     }
 
     @Override
@@ -37,7 +33,6 @@ public class Event implements Serializable {
                 ", location=" + location +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
-                ", occ=" + occurrences +
                 '}';
     }
     public String toString_reduced() {
@@ -46,8 +41,7 @@ public class Event implements Serializable {
                 ";" + temperature +
                 ";" + location +
                 ";" + latitude +
-                ";" + longitude +
-                ";" + occurrences;
+                ";" + longitude ;
     }
 
     public Timestamp getTimestamp() { return timestamp; }
@@ -72,8 +66,4 @@ public class Event implements Serializable {
     public Double getLongitude() { return longitude; }
 
     public void setLongitude(Double longitude) { this.longitude = longitude; }
-
-    public Long getOccurrences() { return occurrences; }
-
-    public void setOccurrences(Long occurrences) { this.occurrences = occurrences; }
 }

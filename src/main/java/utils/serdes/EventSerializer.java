@@ -24,7 +24,6 @@ public class EventSerializer implements Serializer<Event> {
 
     @Override
     public byte[] serialize(String s, Event event) {
-        System.out.println("To serialize: " + event);
         if (event == null) {
             System.out.println("Null receiving at serializing");
             return null;

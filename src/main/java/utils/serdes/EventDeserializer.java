@@ -32,6 +32,9 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
             validateTemperature(event.getTemperature());
             return event;
         } catch (TemperatureOutOfBoundException e) {
+            if (event.getSensor_id() == 9313) {
+                System.out.println("ERRORE: " + event);
+            }
 //            e.printStackTrace();
             return null;
         }
