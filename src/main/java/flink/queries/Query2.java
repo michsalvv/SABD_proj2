@@ -47,11 +47,11 @@ public class Query2 extends Query {
 
         var hourResult = keyed
                 // Calcolo Media
-                .window(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .window(TumblingEventTimeWindows.of(Time.hours(1)))
                 .aggregate(new AvgQ2(Config.HOUR))
                 .name("Hourly Window Mean AggregateFunction")
                 // Calcolo Ranking
-                .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
+                .windowAll(TumblingEventTimeWindows.of(Time.hours(1)))
                 .process(new LocationRanking(Config.HOUR))
                 .name("Hourly Window Ranking ProcessFunction")
                 .setParallelism(1);
@@ -69,11 +69,11 @@ public class Query2 extends Query {
 
         var weekResult = keyed
                 // Calcolo Media
-                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .aggregate(new AvgQ2(Config.WEEK))
                 .name("Weekly Window Mean AggregateFunction")
                 // Calcolo Ranking
-                .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
+                .windowAll(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new LocationRanking(Config.WEEK))
                 .name("Weekly Window Ranking ProcessFunction")
                 .setParallelism(1);

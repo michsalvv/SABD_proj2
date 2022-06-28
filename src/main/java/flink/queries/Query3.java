@@ -156,13 +156,13 @@ public class Query3 extends Query {
          */
         // Calcolo della media
         var weekMean = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .aggregate(new AvgQ3(Config.WEEK))
                 .name("Weekly Window Mean AggregateFunction");
 
         // Calcolo della mediana
         var weekMedian = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new Median())
                 .name("Weekly Window Median ProcessFunction")
                 .setParallelism(1);
@@ -172,7 +172,7 @@ public class Query3 extends Query {
                 .join(weekMedian)
                 .where(e -> e.getCell_id())
                 .equalTo(f -> f.getCell_id())
-                .window(TumblingEventTimeWindows.of(Time.days(7)));
+                .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)));
 
         // Campi di interesse per l'output
         var weekStatistics = weekJoined.apply((JoinFunction<ValQ3, ValQ3, ValQ3>) (v1, v2) -> {
@@ -186,7 +186,7 @@ public class Query3 extends Query {
 
         // Unione dei risultati della singola finestra sulla stessa riga
         var weekResult = weekStatistics
-                .windowAll(TumblingEventTimeWindows.of(Time.days(7)))
+                .windowAll(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new CellStatistics(Config.WEEK))
                 .name("OutputFormatter ProcessFunction")
                 .setParallelism(1);
