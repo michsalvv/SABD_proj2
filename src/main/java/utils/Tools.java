@@ -83,7 +83,7 @@ public class Tools {
         int month = timestamp.toLocalDateTime().getMonthValue();
         int day = timestamp.toLocalDateTime().getDayOfMonth();
         int ceil = day/7;
-        int slot = ceil * 7 + 1;
+        int slot = ceil * 7;
 
         String ts = String.format("%d-%02d-%02d 00:00:00", year, month, slot);
         return Timestamp.valueOf(ts);

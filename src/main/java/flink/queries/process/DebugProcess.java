@@ -1,29 +1,29 @@
 package flink.queries.process;
 
+import flink.deserialize.Event;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
+import utils.tuples.OutQ1;
+import utils.tuples.ValQ2;
 import utils.tuples.ValQ3;
-import utils.Tools;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Median extends ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWindow> {
+public class DebugProcess extends ProcessWindowFunction<Event, Tuple2<Long,Integer>, Long, TimeWindow> {
     @Override
-    public void process(Integer cell_id, ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWindow>.Context context, Iterable<ValQ3> iterable, Collector<ValQ3> collector) throws Exception {
+    public void process(Long sensor_id, ProcessWindowFunction<Event, Tuple2<Long,Integer>, Long, TimeWindow>.Context context, Iterable<Event> iterable, Collector<Tuple2<Long,Integer>> collector) throws Exception {
         Timestamp end = new Timestamp(context.window().getEnd());
         Timestamp start = new Timestamp(context.window().getStart());
-//        System.out.printf("WINDOW: (%s,%s)\n", start,end);
-
-        var sorted = Tools.sortByTemperature(iterable);
-        double median;
-        int size = sorted.size();
-        if (sorted.size() % 2 == 0)
-            median = (sorted.get(size/2).getMean_temp() + sorted.get(size/2-1).getMean_temp())/2;
-        else
-            median = sorted.get(size/2).getMean_temp();
-
-
-        collector.collect(new ValQ3(start,null,median,cell_id));
+        System.out.printf("WINDOW: (%s,%s)\n", start,end);
+        Iterator<Event> iterator = iterable.iterator();
+        Integer count = 0;
+        while (iterator.hasNext()) {
+            count++;
+        }
+        collector.collect(new Tuple2<>(sensor_id,count));
     }
 }

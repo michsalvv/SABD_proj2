@@ -52,8 +52,7 @@ public class Main {
 
         // BIBBIA
         var src = env.fromSource(source, WatermarkStrategy
-                .<Event>forMonotonousTimestamps()
-                .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()), "Kafka Source")
+                .<Event>forMonotonousTimestamps(),"Kafka Source")
                 .setParallelism(1);
 
         Query q1 = new Query1(env,src);

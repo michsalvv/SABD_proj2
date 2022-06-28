@@ -16,6 +16,7 @@ package flink.queries;
 
 import flink.deserialize.Event;
 import flink.queries.aggregate.AvgQ1;
+import flink.queries.process.DebugProcess;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
@@ -39,32 +40,38 @@ public class Query1 extends Query {
                 .filter(event -> event.getSensor_id() < 10000)
                 .keyBy(Event::getSensor_id);
 
-        var hourResult = keyed
+/*        var hourResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.hours(1)))
                 .aggregate(new AvgQ1(Config.HOUR))
-                .name("Hourly Window Mean AggregateFunction");
+                .name("Hourly Window Mean AggregateFunction");*/
 
 
         var weekResult = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(7)))
+                .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
+//                .process(new DebugProcess())
                 .aggregate(new AvgQ1(Config.WEEK))
                 .name("Weekly Window Mean AggregateFunction");
 
-
-        //TODO funziona solo con finestra di 30, occorre ragionare sul perché. Con 31 splitta in due finestre, non trovo il senso.
-        var monthResult = keyed
-                .window(TumblingEventTimeWindows.of(Time.days(31)))
-                .aggregate(new AvgQ1(Config.MONTH))
-                .name("Monthly Window Mean AggregateFunction");
+        weekResult.print();
 
 
-        var hourSink = Tools.buildSink("results/q1-res/hourly");
-        var weekSink = Tools.buildSink("results/q1-res/weekly");
-        var monthSink = Tools.buildSink("results/q1-res/monthly");
+//        //TODO funziona solo con finestra di 30, occorre ragionare sul perché. Con 31 splitta in due finestre, non trovo il senso.
+//        var monthResult = keyed
+//                .window(TumblingEventTimeWindows.of(Time.days(31),Time.days(17)))
+////                .aggregate(new AvgQ1(Config.MONTH))
+//                .process(new DebugProcess())
+//                .name("Monthly Window Mean AggregateFunction");
+//
+//        monthResult.print();
 
-        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
+
+//        var hourSink = Tools.buildSink("results/q1-res/hourly");
+//        var weekSink = Tools.buildSink("results/q1-res/weekly");
+//        var monthSink = Tools.buildSink("results/q1-res/monthly");
+//
+//        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+//        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+//        monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
         env.execute("Query 1");
     }
 }
