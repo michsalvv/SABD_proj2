@@ -24,10 +24,16 @@ public final class CustomSerdes {
     public static Serde<ValQ2> ValQ2() {
         ValQ2Serde serdes = new ValQ2Serde();
         return Serdes.serdeFrom(serdes, serdes);
+    }
 
     public static Serde<LocationAggregator> LocationAggregator(){
         LocationAggregatorSerde serde = new LocationAggregatorSerde();
         return Serdes.serdeFrom(serde, serde);
+    }
 
+    public static Serde<LocationAggregator> Q2Output(){
+        LocationAggregatorSerde deserializer = new LocationAggregatorSerde();
+        OutputQ2Serde serializer = new OutputQ2Serde();
+        return Serdes.serdeFrom(serializer, deserializer);
     }
 }
