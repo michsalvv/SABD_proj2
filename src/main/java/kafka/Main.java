@@ -26,7 +26,7 @@ public class Main {
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "kafka-streams");
         props.put(StreamsConfig.CLIENT_ID_CONFIG, "consumer-" + new Timestamp(System.currentTimeMillis()));
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 60 * 1000);
+        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 120 * 1000);
 
         final StreamsBuilder builder = new StreamsBuilder();
 
