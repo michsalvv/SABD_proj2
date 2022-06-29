@@ -74,7 +74,7 @@ public class Query2 extends Query {
 
         result.toStream().print(Printed.toSysOut());
 
-        result.toStream().to("q2-weekly", Produced.with(Serdes.String(), CustomSerdes.LocationAggregator()));
+        result.toStream().to("q2-weekly", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.cleanUp(); //clean up of the local StateStore
