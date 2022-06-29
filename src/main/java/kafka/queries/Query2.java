@@ -10,11 +10,13 @@ import org.apache.kafka.streams.kstream.*;
 import scala.Enumeration;
 import utils.Event;
 import utils.Tools;
+import utils.serdes.ArrayListSerde;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ2;
 
 import java.sql.Timestamp;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -50,7 +52,7 @@ public class Query2 extends Query {
                 .windowedBy(new WeeklyWindow());
 
         var statistics = grouped
-                .aggregate(ValQ2::new, (along, event, valQ2) -> {
+                .aggregate(ValQ2::new, (aLong, event, valQ2) -> {
                     Double temp = valQ2.getTemperature()+event.getTemperature();
                     valQ2.setTemperature(temp);
                     valQ2.setOccurrences(valQ2.getOccurrences()+1L);
@@ -60,14 +62,21 @@ public class Query2 extends Query {
                     return valQ2;
                 }, Materialized.with(Serdes.Long(), CustomSerdes.ValQ2()));
 
-        var grouped2 = statistics
-                .groupBy((location, valQ2) -> new KeyValue<>(valQ2.getTimestamp().toString(), valQ2),
-                        Grouped.with(Serdes.String(), CustomSerdes.ValQ2()));
-
         statistics.toStream().print(Printed.toSysOut());
 
+       var result = statistics
+               .groupBy((longWindowed, valQ2) -> new KeyValue<>(Tools.getWeekSlot(valQ2.getTimestamp()).toString(), valQ2),
+                       Grouped.with(Serdes.String(), CustomSerdes.ValQ2()))
+               .aggregate(ArrayList::new, (Aggregator<String, ValQ2, ArrayList<ValQ2>>) (timestamp, valQ2, valQ2s) -> {
 
 
+                   valQ2s.add(valQ2);
+                   return valQ2s;
+               }, (Aggregator<String, ValQ2, ArrayList<ValQ2>>) (timestamp, valQ2, valQ2s) -> null,
+                       Materialized.with(Serdes.String(), new ArrayListSerde<>(CustomSerdes.ValQ2()))
+               );
+
+        result.toStream().print(Printed.toSysOut());
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.cleanUp(); //clean up of the local StateStore

@@ -79,7 +79,7 @@ public class ValQ2 implements Serializable {
     }
 
     public void calculateMean() {
-        mean_temp = temperature / (double) occurrences;
+        this.mean_temp = this.temperature / (double) this.occurrences;
     }
 
     @Override
