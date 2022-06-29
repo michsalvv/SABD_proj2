@@ -71,7 +71,6 @@ public class OutQ1 implements Serializable, OutputQuery {
     @Override
     public String toCSV() {
         String slot = getTimestampSlot();
-        System.out.println("Writing Results for Window: " + slot);
         return slot+";"+sensor_id+";"+occurrences+";"+meanTemperature;
     }
 

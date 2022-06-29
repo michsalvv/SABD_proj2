@@ -9,8 +9,12 @@ public class Config {
     public static final String ORIGINAL_DATASET = "data/2022-05_bmp180.csv";
     public static final String REDUCED_DATASET = "data/reduced.csv";
     public static final String ULTRA_REDUCED_DATASET = "data/ultra-reduced.csv";
-    public static final int SPEEDING_FACTOR = 3600000;
+    public static final int SPEEDING_FACTOR = 360000;
 
+    // Flink Settings
+    public static final int PARALLELISM_LEVEL = 5;
+
+    // Grid Settings
     public static final int SPLIT_FACTOR = 4;
     public static final int NUM_AREAS = 16;
 

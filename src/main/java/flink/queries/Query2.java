@@ -54,7 +54,8 @@ public class Query2 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.hours(1)))
                 .process(new LocationRanking(Config.HOUR))
                 .name("Hourly Window Ranking ProcessFunction")
-                .setParallelism(1);
+                .setParallelism(1)
+                .disableChaining();
 
         var dayResult = keyed
                 // Calcolo Media
@@ -65,7 +66,8 @@ public class Query2 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
                 .process(new LocationRanking(Config.DAY))
                 .name("Daily Window Ranking ProcessFunction")
-                .setParallelism(1);
+                .setParallelism(1)
+                .disableChaining();
 
         var weekResult = keyed
                 // Calcolo Media
@@ -76,7 +78,8 @@ public class Query2 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new LocationRanking(Config.WEEK))
                 .name("Weekly Window Ranking ProcessFunction")
-                .setParallelism(1);
+                .setParallelism(1)
+                .disableChaining();
 
 
         var hourSink = Tools.buildSink("results/q2-res/hourly");
