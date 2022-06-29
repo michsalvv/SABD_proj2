@@ -83,13 +83,9 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-
-        System.out.println("--------------------------- HOURLY ---------------------------");
-        hourlyGrouped.toStream().print(Printed.toSysOut());
-        System.out.println("\n--------------------------- WEEKLY ---------------------------");
+        //hourlyGrouped.toStream().print(Printed.toSysOut());
         weeklyGrouped.toStream().print(Printed.toSysOut());
-        System.out.println("\n--------------------------- MONTHLY --------------------------");
-        monthlyGrouped.toStream().print(Printed.toSysOut());
+        //monthlyGrouped.toStream().print(Printed.toSysOut());
 
         monthlyGrouped.toStream().to("q1-monthly", Produced.with(
                   WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));

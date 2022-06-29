@@ -43,7 +43,7 @@ public class Query2 extends Query {
     public void execute() throws Exception {
 
         var keyed = src
-                .keyBy(event -> event.getLocation());
+                .keyBy(Event::getLocation);
 
         var hourResult = keyed
                 // Calcolo Media
