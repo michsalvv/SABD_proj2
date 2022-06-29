@@ -11,6 +11,11 @@ import utils.Tools;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ2;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Properties;
 
 /**
@@ -43,7 +48,8 @@ public class Query2 extends Query {
 
         var grouped = keyed
                 .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.Event()))
-                .windowedBy(new WeeklyWindow());
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofHours(1)));
+//                .windowedBy(new WeeklyWindow());
 
         var statistics = grouped
                 .aggregate(ValQ2::new, (aLong, event, valQ2) -> {
@@ -56,11 +62,19 @@ public class Query2 extends Query {
                     return valQ2;
                 }, Materialized.with(Serdes.Long(), CustomSerdes.ValQ2()));
         
-        var result = statistics
-               .groupBy((longWindowed, valQ2) -> new KeyValue<>(Tools.getWeekSlot(valQ2.getTimestamp()).toString(), valQ2),
-                       Grouped.with(Serdes.String(), CustomSerdes.ValQ2()));
+       var result = statistics
+               .groupBy((longWindowed, valQ2) -> new KeyValue<>(Tools.getHourSlot(valQ2.getTimestamp()).toString(), valQ2),
+                       Grouped.with(Serdes.String(), CustomSerdes.ValQ2()))
 
-        statistics.toStream().print(Printed.toSysOut());
+               .aggregate(LocationAggregator::new, (Aggregator<String, ValQ2, LocationAggregator>) (timestamp, valQ2, aggregator) -> {
+                    aggregator.updateRank(valQ2);
+                    return aggregator;
+               }, (Aggregator<String, ValQ2, LocationAggregator>) (timestamp, valQ2, valQ2s) -> null,
+                       Materialized.with(Serdes.String(), CustomSerdes.LocationAggregator()));
+
+        result.toStream().print(Printed.toSysOut());
+
+        result.toStream().to("q2-hourly", Produced.with(Serdes.String(), CustomSerdes.LocationAggregator()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.cleanUp(); //clean up of the local StateStore

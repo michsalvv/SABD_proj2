@@ -1,5 +1,6 @@
 package utils.serdes;
 
+import kafka.queries.LocationAggregator;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import utils.tuples.Event;
@@ -23,6 +24,10 @@ public final class CustomSerdes {
     public static Serde<ValQ2> ValQ2() {
         ValQ2Serde serdes = new ValQ2Serde();
         return Serdes.serdeFrom(serdes, serdes);
+
+    public static Serde<LocationAggregator> LocationAggregator(){
+        LocationAggregatorSerde serde = new LocationAggregatorSerde();
+        return Serdes.serdeFrom(serde, serde);
 
     }
 }
