@@ -44,7 +44,7 @@ public class Tools {
             while (iterator.hasNext()) {
                 ValQ2 actual = iterator.next();
 
-                Double actualVal = actual.getMeanTemperature();
+                Double actualVal = actual.getTemperature();
                 Long actualId = actual.getLocation();
                 if (actualVal >= maxVal && !highIds.contains(actualId)) {
                     maxVal = actualVal;

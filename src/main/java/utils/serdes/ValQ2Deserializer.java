@@ -25,10 +25,6 @@ public class ValQ2Deserializer implements Deserializer<ValQ2> {
 
     @Override
     public ValQ2 deserialize(String topic, byte[] bytes) {
-        try {
-            return ValQ2.create(new String(bytes, StandardCharsets.UTF_8));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        return new ValQ2(new String(bytes, StandardCharsets.UTF_8));
     }
 }

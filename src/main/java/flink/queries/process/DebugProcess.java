@@ -1,17 +1,13 @@
 package flink.queries.process;
 
-import flink.deserialize.Event;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
-import utils.tuples.OutQ1;
-import utils.tuples.ValQ2;
-import utils.tuples.ValQ3;
+import utils.Event;
 
 import java.sql.Timestamp;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DebugProcess extends ProcessWindowFunction<Event, Tuple2<Long,Integer>, Long, TimeWindow> {
     @Override

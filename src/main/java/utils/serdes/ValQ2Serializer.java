@@ -21,7 +21,7 @@ public class ValQ2Serializer implements Serializer<ValQ2> {
             System.out.println("Null receiving at serializing");
             return null;
         }
-        return values.toCSV().getBytes(StandardCharsets.UTF_8);
+        return values.toSerialize().getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

@@ -1,19 +1,14 @@
 package kafka.queries;
 
 import kafka.queries.Windows.MonthlyWindow;
-import kafka.queries.Windows.WeeklyWindow;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import utils.Event;
-import utils.Tools;
 import utils.serdes.CustomSerdes;
-import utils.tuples.ValQ1;
 import utils.tuples.ValQ2;
 
-import java.time.Duration;
 import java.util.Properties;
 
 /**
@@ -50,18 +45,15 @@ public class Query2 extends Query {
 
         var result = grouped
                 .aggregate(ValQ2::new, (aLong, event, valQ2) -> {
-                    System.out.println(event);
-                    System.out.println(valQ2);
-                    System.out.println("--------------");
-
-                    Double temp = valQ2.getMeanTemperature()+event.getTemperature();
-                    valQ2.addOccurrences();
-                    valQ2.setMeanTemperature(temp);
+                    Double temp = valQ2.getTemperature()+event.getTemperature();
+                    valQ2.setTemperature(temp);
+                    valQ2.setOccurrences(valQ2.getOccurrences()+1L);
                     valQ2.setTimestamp(event.getTimestamp());
                     valQ2.setLocation(event.getLocation());
+                    Double mean = valQ2.getTemperature() / valQ2.getOccurrences();
+                    valQ2.setMean_temp(mean);
                     return valQ2;
                 }, Materialized.with(Serdes.Long(), CustomSerdes.ValQ2()));
-
 
         result.toStream().print(Printed.toSysOut());
 

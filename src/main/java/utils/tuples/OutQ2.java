@@ -26,12 +26,12 @@ public class OutQ2 implements OutputQuery {
         builder.append(slot).append(delimiter);
         for (ValQ2 val :highMean) {
             builder.append(val.getLocation()).append(delimiter);
-            builder.append(val.getMeanTemperature()).append(delimiter);
+            builder.append(val.getTemperature()).append(delimiter);
         }
 
         for (ValQ2 val :lowMean) {
             builder.append(val.getLocation()).append(delimiter);
-            builder.append(val.getMeanTemperature()).append(delimiter);
+            builder.append(val.getTemperature()).append(delimiter);
         }
         // Simply remove last useless delimiter
         if (builder.length() > 0) {
