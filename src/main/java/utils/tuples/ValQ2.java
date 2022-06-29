@@ -68,6 +68,10 @@ public class ValQ2 implements Serializable {
         this.location = location;
     }
 
+    public void calculateMean() {
+        this.mean_temp = this.temperature / (double) this.occurrences;
+    }
+
     @Override
     public String toString() {
         return "ValQ2{" +

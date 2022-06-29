@@ -41,19 +41,19 @@ public class Query1 extends Query {
                 })
                 .selectKey((key, values) -> values.getSensor_id());
 
-        var monthlyGrouped = keyed
-                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
-                .windowedBy(new MonthlyWindow())
-                .reduce((v1, v2) -> {
-                    Long occ = v1.getOccurrences() + v2.getOccurrences();
-                    Double temp = v1.getTemperature() + v2.getTemperature();
-                    return new ValQ1(Tools.getMonthSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
-                })
-                .mapValues(valQ1 -> {
-                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
-                    valQ1.setTemperature(meanTemperature);
-                    return valQ1;
-                });
+//        var monthlyGrouped = keyed
+//                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
+//                .windowedBy(new MonthlyWindow())
+//                .reduce((v1, v2) -> {
+//                    Long occ = v1.getOccurrences() + v2.getOccurrences();
+//                    Double temp = v1.getTemperature() + v2.getTemperature();
+//                    return new ValQ1(Tools.getMonthSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
+//                })
+//                .mapValues(valQ1 -> {
+//                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
+//                    valQ1.setTemperature(meanTemperature);
+//                    return valQ1;
+//                });
 
         var weeklyGrouped = keyed
                 .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
@@ -69,36 +69,33 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-        var hourlyGrouped = keyed
-                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
-                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofHours(1)))
-                .reduce((v1, v2) -> {
-                    Long occ = v1.getOccurrences() + v2.getOccurrences();
-                    Double temp = v1.getTemperature() + v2.getTemperature();
-                    return new ValQ1(Tools.getHourSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
-                })
-                .mapValues(valQ1 -> {
-                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
-                    valQ1.setTemperature(meanTemperature);
-                    return valQ1;
-                });
+//        var hourlyGrouped = keyed
+//                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
+//                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofHours(1)))
+//                .reduce((v1, v2) -> {
+//                    Long occ = v1.getOccurrences() + v2.getOccurrences();
+//                    Double temp = v1.getTemperature() + v2.getTemperature();
+//                    return new ValQ1(Tools.getHourSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
+//                })
+//                .mapValues(valQ1 -> {
+//                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
+//                    valQ1.setTemperature(meanTemperature);
+//                    return valQ1;
+//                });
 
 
-        System.out.println("--------------------------- HOURLY ---------------------------");
-        hourlyGrouped.toStream().print(Printed.toSysOut());
-        System.out.println("\n--------------------------- WEEKLY ---------------------------");
+//        hourlyGrouped.toStream().print(Printed.toSysOut());
         weeklyGrouped.toStream().print(Printed.toSysOut());
-        System.out.println("\n--------------------------- MONTHLY --------------------------");
-        monthlyGrouped.toStream().print(Printed.toSysOut());
+//        monthlyGrouped.toStream().print(Printed.toSysOut());
 
-        monthlyGrouped.toStream().to("q1-monthly", Produced.with(
-                  WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
+//        monthlyGrouped.toStream().to("q1-monthly", Produced.with(
+//                  WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
         weeklyGrouped.toStream().to("q1-weekly", Produced.with(
                   WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
-        hourlyGrouped.toStream().to("q1-hourly", Produced.with(
-                WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
+//        hourlyGrouped.toStream().to("q1-hourly", Produced.with(
+//                WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);

@@ -74,6 +74,6 @@ public class WeeklyWindow extends Windows<TimeWindow> {
     }
 
     private long toEpochMilli(final ZonedDateTime zonedDateTime) {
-        return zonedDateTime.toInstant().toEpochMilli();
+        return zonedDateTime.toInstant().toEpochMilli() + Config.CEST;
     }
 }
