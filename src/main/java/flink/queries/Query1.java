@@ -14,7 +14,6 @@
 // TODO vedere i parallelismi su tutte le query
 package flink.queries;
 
-import flink.deserialize.Event;
 import flink.queries.aggregate.AvgQ1;
 import flink.queries.process.DebugProcess;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -23,6 +22,7 @@ import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.Config;
+import utils.Event;
 import utils.Tools;
 
 public class Query1 extends Query {

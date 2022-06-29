@@ -1,9 +1,11 @@
 package utils.serdes;
 
+import flink.exception.CoordinatesOutOfBoundException;
 import flink.exception.TemperatureOutOfBoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.spark.sql.util.NumericHistogram;
 import utils.Event;
 
 import java.io.IOException;
@@ -30,11 +32,9 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
+            validateCoordinates(event.getLatitude(), event.getLongitude());
             return event;
-        } catch (TemperatureOutOfBoundException e) {
-            if (event.getSensor_id() == 9313) {
-                System.out.println("ERRORE: " + event);
-            }
+        } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
 //            e.printStackTrace();
             return null;
         }
@@ -45,8 +45,9 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
+            validateCoordinates(event.getLatitude(), event.getLongitude());
             return event;
-        } catch (TemperatureOutOfBoundException e) {
+        } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
 //            e.printStackTrace();
             return null;
         }
@@ -66,6 +67,13 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
     public static void validateTemperature(Double temperature) throws TemperatureOutOfBoundException {
         if (temperature < -40 || temperature > 85) {
             throw new TemperatureOutOfBoundException("Deserializer Error: Temperature out of Sensor Range");
+        }
+    }
+
+    // La latitudine e longitudine variano da -90° a +90° e da -180° a +180*
+    static void validateCoordinates(Double latitude, Double longitude) throws CoordinatesOutOfBoundException {
+        if (latitude < -90D || latitude > 90D || longitude < -180D || longitude > 180D) {
+            throw new CoordinatesOutOfBoundException("Deserializer Error: Coordinates out of Bound");
         }
     }
 }
