@@ -2,11 +2,17 @@ package flink.queries.aggregate;
 
 import utils.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
+import utils.Config;
 import utils.Tools;
 import utils.tuples.OutputQuery;
-import utils.tuples.ValQ1;
+import utils.tuples.OutQ1;
 
 public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuery> {
+    String windowType;
+    public AvgQ1(String windowType) {
+        this.windowType = windowType;
+    }
+
     public AccumulatorQ1 createAccumulator() {
         return new AccumulatorQ1();
     }
@@ -14,9 +20,9 @@ public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuer
     @Override
     public AccumulatorQ1 add(Event values, AccumulatorQ1 acc) {
         acc.sum += values.getTemperature();
-        acc.count++;
         acc.sensor_id = values.getSensor_id();
         acc.last_timestamp = values.getTimestamp();
+        acc.count++;
         return acc;
     }
 
@@ -28,16 +34,21 @@ public class AvgQ1 implements AggregateFunction<Event, AccumulatorQ1, OutputQuer
     }
 
     @Override
-    public ValQ1 getResult(AccumulatorQ1 acc) {
+    public OutQ1 getResult(AccumulatorQ1 acc) {
         double mean = acc.sum / (double) acc.count;
-        ValQ1 result = new ValQ1();
+        OutQ1 result = new OutQ1(windowType);
         result.setSensor_id(acc.sensor_id);
         result.setTemperature(mean);
         result.setOccurrences(acc.count);
-        result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
+        if (windowType.equals(Config.HOUR)) {
+            result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.WEEK)) {
+            result.setTimestamp(Tools.getWeekSlot(acc.last_timestamp));
+        }
+        if (windowType.equals(Config.MONTH)) {
+            result.setTimestamp(Tools.getMonthSlot(acc.last_timestamp));
+        }
         return result;
     }
-
-
-
 }

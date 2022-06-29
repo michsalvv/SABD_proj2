@@ -1,8 +1,9 @@
 package kafka;
 
-import kafka.exception.SimulationTimeException;
+import org.apache.flink.shaded.netty4.io.netty.handler.codec.sctp.SctpOutboundByteStreamHandler;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import kafka.exception.SimulationTimeException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import utils.Config;
@@ -14,7 +15,9 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.TimeZone;
 
 public class Producer {
 

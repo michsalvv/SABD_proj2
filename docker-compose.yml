@@ -50,7 +50,7 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 5
+        taskmanager.numberOfTaskSlots: 12
 
   kafdrop:
     image: obsidiandynamics/kafdrop

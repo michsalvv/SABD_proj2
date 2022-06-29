@@ -12,3 +12,5 @@ sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092
 
 ## copy jar in flink's jobmanager
 sudo docker cp target/SABD_proj2-1.0.jar jobmanager:/home
+
+sudo docker exec taskmanager rm -rf /opt/flink/results/

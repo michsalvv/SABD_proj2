@@ -23,10 +23,9 @@ public class Main {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // start a checkpoint every 30s
-        env.enableCheckpointing(30000);
+        env.enableCheckpointing(3000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(15000);
-
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
         // checkpoints have to complete within one minute, or are discarded
         env.getCheckpointConfig().setCheckpointTimeout(60000);
         // only two consecutive checkpoint failures are tolerated
@@ -35,6 +34,9 @@ public class Main {
         env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
         // sets the checkpoint storage where checkpoint snapshots will be written
         env.getCheckpointConfig().setCheckpointStorage("file:///opt/flink/flink-checkpoints");
+
+        env.setParallelism(12);
+
         // enable checkpointing with finished tasks
         Configuration config = new Configuration();
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
@@ -45,7 +47,6 @@ public class Main {
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-//                .setUnbounded(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new EventDeserializer())
                 .build();
 
@@ -55,12 +56,12 @@ public class Main {
 //                        .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
 //                "Kafka Source");
         var src = env.fromSource(source, WatermarkStrategy
-                        .<Event>forMonotonousTimestamps(),
-                "Kafka Source");
+                .<Event>forMonotonousTimestamps(),"Kafka Source")
+                .setParallelism(1);
 
         Query q1 = new Query1(env,src);
-        Query q2 = new Query2(env, src);
-        Query q3 = new Query3(env, src);
+        Query q2 = new Query2(env,src);
+        Query q3 = new Query3(env,src);
 
         switch (args[0]) {
             case ("Q1"):

@@ -1,8 +1,8 @@
 package flink.deserialize;
 
+import flink.exception.CoordinatesOutOfBoundException;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import flink.exception.CoordinatesOutOfBoundException;
 import flink.exception.TemperatureOutOfBoundException;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -16,19 +16,19 @@ public class EventDeserializer implements DeserializationSchema<Event>, Deserial
         Event event = new Event(new String(bytes, StandardCharsets.UTF_8));
         try{
             validateTemperature(event.getTemperature());
+            validateCoordinates(event.getLatitude(),event.getLongitude());
             return event;
-        } catch (TemperatureOutOfBoundException e) {
-//            e.printStackTrace();
+        } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
+//            System.out.println("Event Discarded: " + event);
             return null;
         }
     }
 
     @Override
     public boolean isEndOfStream(Event nextElement) {
-//        if (nextElement.getSensor_id() == 0){
-//            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//            return true;
-//        }
+        if (nextElement.getSensor_id() == -1){
+            return true;
+        }
         return false;
     }
 
