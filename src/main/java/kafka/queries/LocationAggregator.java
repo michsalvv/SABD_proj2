@@ -2,7 +2,6 @@ package kafka.queries;
 
 import utils.tuples.ValQ2;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 // Non togliere i getter e setter altrimenti non serializza
@@ -10,6 +9,8 @@ public class LocationAggregator {
 
     TreeMap<Double, Long> topLocations = new TreeMap<>();
     TreeMap<Double, Long> lowLocations = new TreeMap<>();
+
+    String timestamp;
 
     public LocationAggregator() {
     }
@@ -71,11 +72,26 @@ public class LocationAggregator {
         this.lowLocations = lowLocations;
     }
 
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "LocationAggregator{" +
-                "topLocations=" + topLocations +
+                "topLocations=" + topLocations.descendingMap()+
                 ", lowLocations=" + lowLocations +
                 '}';
+    }
+
+
+    public String toSerialize() {
+        return timestamp.toString()  + ";"
+                +topLocations.descendingMap().toString().replace("=", ",") +";"
+                +lowLocations.toString().replace("=", ",");
     }
 }
