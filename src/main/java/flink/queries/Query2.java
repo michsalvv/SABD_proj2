@@ -13,22 +13,15 @@
 
 package flink.queries;
 
-import utils.Event;
+import utils.tuples.Event;
 import flink.queries.process.LocationRanking;
-import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
-import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import flink.queries.aggregate.AvgQ2;
-import utils.CSVEncoder;
 import utils.Config;
 import utils.Tools;
-import utils.tuples.OutputQuery;
-
-import java.util.concurrent.TimeUnit;
 
 public class Query2 extends Query {
     StreamExecutionEnvironment env;

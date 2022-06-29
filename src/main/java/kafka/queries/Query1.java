@@ -1,18 +1,16 @@
 package kafka.queries;
 
-import kafka.queries.Windows.MonthlyWindow;
 import kafka.queries.Windows.WeeklyWindow;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import utils.Event;
+import utils.tuples.Event;
 import utils.Tools;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ1;
 
-import java.time.Duration;
 import java.util.Properties;
 
 public class Query1 extends Query {

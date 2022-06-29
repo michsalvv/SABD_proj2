@@ -1,7 +1,7 @@
 package flink;
 
-import utils.serdes.EventDeserializer;
-import utils.Event;
+import utils.serdes.EventSerde;
+import utils.tuples.Event;
 import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
@@ -13,8 +13,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import flink.queries.Query1;
 import flink.queries.Query2;
 import flink.queries.Query3;
-
-import java.time.Duration;
 
 public class Main {
     static Query query;
@@ -47,7 +45,7 @@ public class Main {
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer(new EventDeserializer())
+                .setValueOnlyDeserializer(new EventSerde())
                 .build();
 
         // BIBBIA

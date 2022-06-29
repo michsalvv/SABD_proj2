@@ -1,14 +1,20 @@
 package utils.serdes;
 
+import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
-import utils.tuples.ValQ1;
 import utils.tuples.ValQ2;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class ValQ2Serializer implements Serializer<ValQ2> {
-    public ValQ2Serializer() { }
+public class ValQ2Serde implements Deserializer<ValQ2>, Serializer<ValQ2> {
+
+    public ValQ2Serde() { }
+
+    @Override
+    public ValQ2 deserialize(String topic, byte[] bytes) {
+        return new ValQ2(new String(bytes, StandardCharsets.UTF_8));
+    }
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {

@@ -15,14 +15,12 @@
 package flink.queries;
 
 import flink.queries.aggregate.AvgQ1;
-import flink.queries.process.DebugProcess;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.OnCheckpointRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.Config;
-import utils.Event;
+import utils.tuples.Event;
 import utils.Tools;
 
 public class Query1 extends Query {

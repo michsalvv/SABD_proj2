@@ -2,7 +2,6 @@ package kafka;
 
 import kafka.queries.Query1;
 import kafka.queries.Query2;
-import org.apache.flink.metrics.Metric;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
@@ -14,7 +13,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import java.sql.Timestamp;
 import java.util.*;
 
-import utils.Event;
+import utils.tuples.Event;
 import utils.serdes.CustomSerdes;
 
 public class Main {

@@ -1,31 +1,19 @@
 package utils.serdes;
 
-import flink.exception.CoordinatesOutOfBoundException;
-import flink.exception.TemperatureOutOfBoundException;
+import utils.exception.CoordinatesOutOfBoundException;
+import utils.exception.TemperatureOutOfBoundException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.spark.sql.util.NumericHistogram;
-import utils.Event;
+import org.apache.kafka.common.serialization.Serializer;
+import utils.tuples.Event;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
-public class EventDeserializer implements Deserializer<Event>, DeserializationSchema<Event> {
+public class EventSerde implements Deserializer<Event>, DeserializationSchema<Event>, Serializer<Event> {
 
-    private Class<Event> destinationClass;
-    private Type reflectionTypeToken;
-
-    public EventDeserializer() { }
-
-    public EventDeserializer(Class<Event> destinationClass) {
-        this.destinationClass = destinationClass;
-    }
-
-    public EventDeserializer(Type reflectionTypeToken) {
-        this.reflectionTypeToken = reflectionTypeToken;
-    }
+    public EventSerde() { }
 
     @Override //kafka-deserialize
     public Event deserialize(String topic, byte[] bytes) {
@@ -75,5 +63,24 @@ public class EventDeserializer implements Deserializer<Event>, DeserializationSc
         if (latitude < -90D || latitude > 90D || longitude < -180D || longitude > 180D) {
             throw new CoordinatesOutOfBoundException("Deserializer Error: Coordinates out of Bound");
         }
+    }
+
+    @Override
+    public void configure(Map<String, ?> configs, boolean isKey) {
+        Serializer.super.configure(configs, isKey);
+    }
+
+    @Override
+    public byte[] serialize(String s, Event event) {
+        if (event == null) {
+            System.out.println("Null receiving at serializing");
+            return null;
+        }
+        return event.toString_reduced().getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void close() {
+        Serializer.super.close();
     }
 }
