@@ -1,15 +1,13 @@
 package kafka.queries;
 
-import kafka.queries.Windows.MonthlyWindow;
 import kafka.queries.Windows.WeeklyWindow;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import utils.Event;
+import utils.tuples.Event;
 import utils.Tools;
-import utils.serdes.ArrayListSerde;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ2;
 
@@ -58,7 +56,7 @@ public class Query2 extends Query {
                     Double temp = valQ2.getTemperature()+event.getTemperature();
                     valQ2.setTemperature(temp);
                     valQ2.setOccurrences(valQ2.getOccurrences()+1L);
-                    valQ2.setTimestamp(event.getTimestamp());
+                    valQ2.setTimestamp(Tools.getWeekSlot(event.getTimestamp()));
                     valQ2.setLocation(event.getLocation());
                     valQ2.calculateMean();
                     return valQ2;

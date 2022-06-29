@@ -1,6 +1,6 @@
 package utils.grid;
 
-import utils.Event;
+import utils.tuples.Event;
 import scala.Serializable;
 import utils.Config;
 import utils.Tools;

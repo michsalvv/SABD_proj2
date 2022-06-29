@@ -1,6 +1,6 @@
 package flink.queries.aggregate;
 
-import utils.Event;
+import utils.tuples.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Config;
 import utils.Tools;

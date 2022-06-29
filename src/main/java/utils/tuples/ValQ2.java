@@ -1,10 +1,14 @@
 package utils.tuples;
 
+import org.apache.flink.api.java.tuple.Tuple2;
 import utils.Tools;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ValQ2 implements Serializable {
     Timestamp timestamp;
@@ -12,6 +16,12 @@ public class ValQ2 implements Serializable {
     Long occurrences;
     Double temperature;
     Double mean_temp;
+
+    List<Tuple2<Long, Double>> highLocations;
+
+    List<Tuple2<Long, Double>> lowLocations;
+
+
 
     public ValQ2(String rawMessage) {
         var values = rawMessage.split(";");

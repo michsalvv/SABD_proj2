@@ -22,27 +22,19 @@
 
 package flink.queries;
 
-import utils.Event;
+import utils.tuples.Event;
 import flink.queries.aggregate.AvgQ3;
 import flink.queries.process.CellStatistics;
 import flink.queries.process.Median;
 import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
-import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import utils.CSVEncoder;
 import utils.Config;
 import utils.Tools;
-import utils.grid.Cell;
 import utils.grid.Grid;
-import utils.tuples.OutputQuery;
 import utils.tuples.ValQ3;
-
-import java.util.concurrent.TimeUnit;
 
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
