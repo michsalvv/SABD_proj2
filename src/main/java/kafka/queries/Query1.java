@@ -83,10 +83,13 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-        //hourlyGrouped.toStream().print(Printed.toSysOut());
+//        hourlyGrouped.toStream().print(Printed.toSysOut());
 //        weeklyGrouped.toStream().print(Printed.toSysOut());
-        //monthlyGrouped.toStream().print(Printed.toSysOut());
+//        monthlyGrouped.toStream().print(Printed.toSysOut());
 
+        /*
+            Custom processors for only metrics computation
+         */
         monthlyGrouped.toStream().process(new MetricProcessorSupplier("monthly-thr"));
         weeklyGrouped.toStream().process(new MetricProcessorSupplier("weekly-thr"));
         hourlyGrouped.toStream().process(new MetricProcessorSupplier("hourly-thr"));
@@ -102,11 +105,11 @@ public class Query1 extends Query {
 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        MetricsCalculator metricsCalculator = new MetricsCalculator();
+        MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query1.csv", streams);
 
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();
-        metricsCalculator.start(streams);
+        metricsCalculator.run();
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

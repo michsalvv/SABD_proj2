@@ -43,9 +43,9 @@ public class MetricProcessor implements Processor<Windowed<Long>, ValQ1, Void, V
         MetricConfig metricConfig = new MetricConfig().tags(metricTags);
         Metrics metrics = new Metrics(metricConfig);
 
-        sensorThr = metrics.sensor("throughput");
+        sensorThr = metrics.sensor(window);
         MetricName metricName = metrics.metricName(window, window, window);
-        sensorThr = streamMetrics.addSensor("throughput", Sensor.RecordingLevel.INFO);
+        sensorThr = streamMetrics.addSensor(window, Sensor.RecordingLevel.INFO);
         sensorThr.add(metricName, new CumulativeCount());
 
     }
