@@ -1,16 +1,18 @@
 package kafka.queries;
 
+import kafka.queries.Windows.MonthlyWindow;
 import kafka.queries.Windows.WeeklyWindow;
+import kafka.queries.metrics.MetricProcessorSupplier;
+import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
 import utils.tuples.Event;
 import utils.Tools;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ1;
 
+import java.time.Duration;
 import java.util.Properties;
 
 public class Query1 extends Query {
@@ -39,19 +41,19 @@ public class Query1 extends Query {
                 })
                 .selectKey((key, values) -> values.getSensor_id());
 
-//        var monthlyGrouped = keyed
-//                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
-//                .windowedBy(new MonthlyWindow())
-//                .reduce((v1, v2) -> {
-//                    Long occ = v1.getOccurrences() + v2.getOccurrences();
-//                    Double temp = v1.getTemperature() + v2.getTemperature();
-//                    return new ValQ1(Tools.getMonthSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
-//                })
-//                .mapValues(valQ1 -> {
-//                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
-//                    valQ1.setTemperature(meanTemperature);
-//                    return valQ1;
-//                });
+        var monthlyGrouped = keyed
+                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
+                .windowedBy(new MonthlyWindow())
+                .reduce((v1, v2) -> {
+                    Long occ = v1.getOccurrences() + v2.getOccurrences();
+                    Double temp = v1.getTemperature() + v2.getTemperature();
+                    return new ValQ1(Tools.getMonthSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
+                })
+                .mapValues(valQ1 -> {
+                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
+                    valQ1.setTemperature(meanTemperature);
+                    return valQ1;
+                });
 
         var weeklyGrouped = keyed
                 .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
@@ -67,37 +69,44 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-//        var hourlyGrouped = keyed
-//                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
-//                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofHours(1)))
-//                .reduce((v1, v2) -> {
-//                    Long occ = v1.getOccurrences() + v2.getOccurrences();
-//                    Double temp = v1.getTemperature() + v2.getTemperature();
-//                    return new ValQ1(Tools.getHourSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
-//                })
-//                .mapValues(valQ1 -> {
-//                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
-//                    valQ1.setTemperature(meanTemperature);
-//                    return valQ1;
-//                });
+        var hourlyGrouped = keyed
+                .groupByKey(Grouped.with(Serdes.Long(), CustomSerdes.ValQ1()))
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofHours(1)))
+                .reduce((v1, v2) -> {
+                    Long occ = v1.getOccurrences() + v2.getOccurrences();
+                    Double temp = v1.getTemperature() + v2.getTemperature();
+                    return new ValQ1(Tools.getHourSlot(v2.getTimestamp()), v2.getSensor_id(), temp, occ);
+                })
+                .mapValues(valQ1 -> {
+                    Double meanTemperature = valQ1.getTemperature()/(double)valQ1.getOccurrences();
+                    valQ1.setTemperature(meanTemperature);
+                    return valQ1;
+                });
 
         //hourlyGrouped.toStream().print(Printed.toSysOut());
-        weeklyGrouped.toStream().print(Printed.toSysOut());
+//        weeklyGrouped.toStream().print(Printed.toSysOut());
         //monthlyGrouped.toStream().print(Printed.toSysOut());
 
-//        monthlyGrouped.toStream().to("q1-monthly", Produced.with(
-//                  WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
+        monthlyGrouped.toStream().process(new MetricProcessorSupplier("monthly-thr"));
+        weeklyGrouped.toStream().process(new MetricProcessorSupplier("weekly-thr"));
+        hourlyGrouped.toStream().process(new MetricProcessorSupplier("hourly-thr"));
+
+        monthlyGrouped.toStream().to("q1-monthly", Produced.with(
+                  WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
         weeklyGrouped.toStream().to("q1-weekly", Produced.with(
                   WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
-//        hourlyGrouped.toStream().to("q1-hourly", Produced.with(
-//                WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
+        hourlyGrouped.toStream().to("q1-hourly", Produced.with(
+                WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        MetricsCalculator metricsCalculator = new MetricsCalculator();
+
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();
+        metricsCalculator.start(streams);
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

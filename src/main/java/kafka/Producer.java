@@ -43,12 +43,6 @@ public class Producer {
                 DateTime dateTime = new DateTime( date, timeZone );
                 long ts = dateTime.getMillis();
                 Timestamp timestamp = new Timestamp(ts);
-//                System.out.println("-------------------------------------");
-//                System.out.println( "date: " + date );
-//                System.out.println( "dateTime: " + dateTime );
-//                System.out.println( "Millis: " + ts );
-//                System.out.println( "Our TS: " + timestamp );
-//                System.out.println("-------------------------------------");
 
                 Long sensor_id = Long.parseLong(values[0]);
                 Double temperature = Double.parseDouble(values[9]);

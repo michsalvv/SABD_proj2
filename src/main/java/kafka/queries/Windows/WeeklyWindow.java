@@ -27,7 +27,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//Implementation of a daily custom window starting at given hour (like daily windows starting at 6pm) with a given timezone
 public class WeeklyWindow extends Windows<TimeWindow> {
 
     private final int startHour;
