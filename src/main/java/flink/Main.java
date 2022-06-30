@@ -19,9 +19,6 @@ import utils.Config;
 import java.time.Duration;
 
 public class Main {
-    // TODO monitoraggio latenza
-    // TODO valutare throughput
-    // TODO Parsing dei messaggi di risposta throughput e latenza in modo che siano graficabili facili da excel
     static Query query;
     public static void main(String[] args) throws Exception {
         int parallelism = Integer.parseInt(args[1]);

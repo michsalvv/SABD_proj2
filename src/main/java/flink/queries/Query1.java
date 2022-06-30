@@ -11,7 +11,6 @@
  * – every 1 week (event time)
  * – from the beginning of the dataset
  */
-// TODO vedere i parallelismi su tutte le query
 package flink.queries;
 
 import flink.deserialize.Event;
