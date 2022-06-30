@@ -5,6 +5,7 @@ import org.apache.kafka.common.MetricName;
 import org.apache.kafka.streams.KafkaStreams;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
 
 public class MetricsCalculator extends Thread {
@@ -12,16 +13,26 @@ public class MetricsCalculator extends Thread {
     private KafkaStreams stream;
     private long startTime;
     private double hourlyRecords, weeklyRecords, monthlyRecords;
+    private FileWriter fileWriter;
+    String outputName = "Results/kafka_thr_query1.csv";
+    String DELIMITER = ";";
+    StringBuilder outputBuilder;
 
-
-    public void start(KafkaStreams stream){
+    public void start(KafkaStreams stream)  {
+        try {
+            this.fileWriter = new FileWriter(outputName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.outputBuilder = new StringBuilder("thr_hourly;thr_weekly;thr_monthly\n");
         this.stream = stream;
         run();
     }
+
     @Override
     public void run() {
 
-        while(true) {
+        while (true) {
             metrics = stream.metrics();
 
             metrics.forEach((metricName, metric) -> {
@@ -49,43 +60,41 @@ public class MetricsCalculator extends Thread {
 
             });
             try {
-                sleep(5*1000);
+                sleep(5 * 1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private void calculateTHR(){
+    private void calculateTHR() {
         long currentTime = System.currentTimeMillis();
-        double hourlyTHR = hourlyRecords / ((currentTime-startTime)/1000D);
-        double weeklyTHR = weeklyRecords / ((currentTime-startTime)/1000D);
-        double monthlyTHR = monthlyRecords / ((currentTime-startTime)/1000D);
+        double hourlyTHR = hourlyRecords / ((currentTime - startTime) / 1000D);
+        double weeklyTHR = weeklyRecords / ((currentTime - startTime) / 1000D);
+        double monthlyTHR = monthlyRecords / ((currentTime - startTime) / 1000D);
 
 //        if (hourlyTHR>0 || weeklyTHR>0 || monthlyTHR>0) {
-            System.out.println("startTime: " + startTime);
-            System.out.println("currentTime: " + currentTime);
-            System.out.println("hourlyRec: " + this.hourlyRecords);
-            System.out.println("weeklyRec: " + this.weeklyRecords);
-            System.out.println("monthlyRec: " + this.monthlyRecords);
-            System.out.println("hourlyTHR: " + hourlyTHR);
-            System.out.println("weeklyTHR: " + weeklyTHR);
-            System.out.println("monthlyTHR: " + monthlyTHR);
-            System.out.println("----------------\n");
+        System.out.println("startTime: " + startTime);
+        System.out.println("currentTime: " + currentTime);
+        System.out.println("hourlyRec: " + this.hourlyRecords);
+        System.out.println("weeklyRec: " + this.weeklyRecords);
+        System.out.println("monthlyRec: " + this.monthlyRecords);
+        System.out.println("hourlyTHR: " + hourlyTHR);
+        System.out.println("weeklyTHR: " + weeklyTHR);
+        System.out.println("monthlyTHR: " + monthlyTHR);
+        System.out.println("----------------\n");
 
-            String outputName = "Results/kafka_thr_query1.csv";
-            String DELIMITER = ";";
 
-            try (FileWriter fileWriter = new FileWriter(outputName)) {
-                StringBuilder outputBuilder = new StringBuilder("thr_hourly;thr_weekly;thr_monthly\n");
-                outputBuilder.append(hourlyTHR).append(DELIMITER);
-                outputBuilder.append(weeklyTHR).append(DELIMITER);
-                outputBuilder.append(monthlyTHR).append(DELIMITER);
-                fileWriter.append(outputBuilder.toString());
+        try {
+            outputBuilder.append(hourlyTHR).append(DELIMITER);
+            outputBuilder.append(weeklyTHR).append(DELIMITER);
+            outputBuilder.append(monthlyTHR).append(DELIMITER).append("\n");
+            fileWriter.append(outputBuilder.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            } catch (Exception e) {
-                System.out.println("Results CSV Error: " + e);
-            }
+
 //        }
     }
 }
