@@ -2,6 +2,8 @@ package kafka.queries;
 
 import kafka.queries.Windows.MonthlyWindow;
 import kafka.queries.Windows.WeeklyWindow;
+import kafka.queries.metrics.MetricProcessorSupplier;
+import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
@@ -84,9 +86,16 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-        hourlyGrouped.toStream().print(Printed.toSysOut());
-        weeklyGrouped.toStream().print(Printed.toSysOut());
-        monthlyGrouped.toStream().print(Printed.toSysOut());
+//        hourlyGrouped.toStream().print(Printed.toSysOut());
+//        weeklyGrouped.toStream().print(Printed.toSysOut());
+//        monthlyGrouped.toStream().print(Printed.toSysOut());
+
+        /*
+            Custom processors for only metrics computation
+         */
+        monthlyGrouped.toStream().process(new MetricProcessorSupplier("monthly-thr"));
+        weeklyGrouped.toStream().process(new MetricProcessorSupplier("weekly-thr"));
+        hourlyGrouped.toStream().process(new MetricProcessorSupplier("hourly-thr"));
 
         monthlyGrouped.toStream().to("q1-monthly", Produced.with(
                   WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
@@ -98,8 +107,11 @@ public class Query1 extends Query {
                 WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query1.csv", streams);
+
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();
+        metricsCalculator.run();
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

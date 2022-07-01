@@ -7,6 +7,7 @@ import java.util.*;
 // Non togliere i getter e setter altrimenti non serializza
 public class LocationAggregator {
 
+    private static final String DELIMITER = ";";
     TreeMap<Double, Long> topLocations = new TreeMap<>();
     TreeMap<Double, Long> lowLocations = new TreeMap<>();
 
@@ -82,15 +83,32 @@ public class LocationAggregator {
     @Override
     public String toString() {
         return "LocationAggregator{" +
-                "topLocations=" + topLocations.descendingMap()+
+                "topLocations=" + topLocations.descendingMap() +
                 ", lowLocations=" + lowLocations +
                 '}';
     }
 
 
     public String toSerialize() {
-        return timestamp.toString()  + ";"
-                +topLocations.descendingMap().toString().replace("=", ",") +";"
-                +lowLocations.toString().replace("=", ",");
+
+        StringBuilder builder = new StringBuilder();
+        topLocations.descendingMap()
+                .forEach((temp, key) -> {
+                    builder.append(key).append(DELIMITER);
+                    builder.append(temp).append(DELIMITER);
+                });
+
+        String topMeans = builder.toString();
+        builder.setLength(0);
+
+        lowLocations.forEach((temp, key) -> {
+            builder.append(key).append(DELIMITER);
+            builder.append(temp).append(DELIMITER);
+        });
+        String lowMeans = builder.toString();
+
+        return timestamp + ";"
+                + topMeans
+                + lowMeans.substring(0, lowMeans.length()-1);
     }
 }
