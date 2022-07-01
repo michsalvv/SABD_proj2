@@ -24,4 +24,3 @@ if [ "$1" = "q1" ] || [ "$1" = "q2" ]  ||  [ "$1" = "q3" ] ; then
 else
     echo "Wrong CSV, specify 'q1', 'q2' or 'q3'"
 fi
-
