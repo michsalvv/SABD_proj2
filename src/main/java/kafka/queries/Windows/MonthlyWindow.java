@@ -1,11 +1,8 @@
 package kafka.queries.Windows;
 
-import org.apache.hadoop.hdfs.util.ByteArrayManager;
 import org.apache.kafka.streams.kstream.Windows;
 import org.apache.kafka.streams.kstream.internals.TimeWindow;
 import utils.Config;
-import utils.Tools;
-
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;

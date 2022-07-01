@@ -19,7 +19,7 @@ fi
 echo "------------------------------------------------------------"
 echo "Cleaning Flink Environment"
 echo "------------------------------------------------------------"
-sudo sh scripts/setup_env.sh 2>/dev/null
+sudo sh scripts/setup_flink_env.sh 2>/dev/null
 
 echo "------------------------------------------------------------"
 echo "Starting Kafka Producer in Background"

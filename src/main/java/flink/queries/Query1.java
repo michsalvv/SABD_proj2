@@ -13,12 +13,10 @@
  */
 package flink.queries;
 
-import flink.deserialize.Event;
-import flink.metrics.ThroughputMetricQ1;
+import flink.queries.metrics.ThroughputMetricQ1;
 import flink.queries.aggregate.AvgQ1;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import utils.Config;

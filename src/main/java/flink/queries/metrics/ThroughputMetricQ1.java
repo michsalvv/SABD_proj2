@@ -1,4 +1,4 @@
-package flink.metrics;
+package flink.queries.metrics;
 
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
