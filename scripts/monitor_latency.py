@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 
-# ESEMPIO: http://localhost:8081/jobs/165e9f25dc83c53381ca3259b7aafad5/metrics?get=latency.source_id.bc764cd8ddf7a0cff126f51c16239658.operator_id.fde675a803f8a5309afb6ac6f2d1146a.operator_subtask_index.0.latency_mean
-# Tutte le latenze sono misurate dalla sorgente kafka
-
 import urllib.request
 import time
 import sys
 import os
+
+csv_header = "time;max;mean;median;min;p75;p90;p95;p98;p99;p999;stddev\n"
 
 
 def substring_after(s, delim):
@@ -50,6 +49,7 @@ def getLatencyValuesFromURL(url):
 
 
 query = sys.argv[1]
+parall = sys.argv[2]
 
 os.system('cls' if os.name == 'nt' else 'clear')
 print("╔═══════════════════════════════════════════════════╗")
@@ -69,13 +69,8 @@ monthMeterID = "month"
 metricsListURL = "http://localhost:8081/jobs/" + jobID + "/metrics"
 print("Query:", metricsListURL)
 
-latencies = []
-
-print("Initializing latency metrics.")
-while latencies == []:
-    latencies = getMetricListFromURL(metricsListURL)
-    print("...")
-    time.sleep(0.4)
+ready = False
+latencies = getMetricListFromURL(metricsListURL)
 
 if query == "q1":
     hourVertexID = "54084f2d7567b189abcffcac722eb07c"
@@ -88,9 +83,9 @@ if query == "q2":
     weekVertexID = "43b96dcbe43e081dbccdb8c83e216f30"
 
 if query == "q3":
-    hourVertexID = "4e0711b6163f6dafdca67082f3819e5c"
-    dayVertexID = "6bb684fdc432358c715aaedbc372bf83"
-    weekVertexID = "49379dd06e51c67b842e9ce40142e66e"
+    hourVertexID = "8422bf6d2e8d4274034e58b5c32c2a8d"
+    dayVertexID = "5e0502c34a694fec3eae449313a45aa6"
+    weekVertexID = "4607136e4110d037328faa5a96eea425"
 
 hourLatencies = []
 dayLatencies = []
@@ -106,36 +101,132 @@ for i in latencies:
     if monthVertexID in i:
         monthLatencies.append(i)
 
-t = 0
+print("Initializing Metrics List")
+if query != "q1":
+    while hourLatencies == [] or dayLatencies == [] or weekLatencies == []:
+        hourLatencies = []
+        dayLatencies = []
+        weekLatencies = []
+        latencies = getMetricListFromURL(metricsListURL)
+        for i in latencies:
+            if hourVertexID in i:
+                hourLatencies.append(i)
+            if dayVertexID in i:
+                dayLatencies.append(i)
+            if weekVertexID in i:
+                weekLatencies.append(i)
+        time.sleep(1)
+        print("...")
+else:
+    while hourLatencies == [] or weekLatencies == [] or monthLatencies == []:
+        hourLatencies = []
+        weekLatencies = []
+        monthLatencies = []
+        latencies = getMetricListFromURL(metricsListURL)
+        for i in latencies:
+            if hourVertexID in i:
+                hourLatencies.append(i)
+            if weekVertexID in i:
+                weekLatencies.append(i)
+            if monthVertexID in i:
+                monthLatencies.append(i)
+        time.sleep(1)
+        print("...")
 
-while True:
-    print("——————————————————Time: " + str(t) + "————————————————————")
+
+t = 0
+filenameHour = "results/latency/lat_hour_" + query + "_" + parall + ".csv"
+filenameDay = "results/latency/lat_day_" + query + "_" + parall + ".csv"
+filenameWeek = "results/latency/lat_week_" + query + "_" + parall + ".csv"
+filenameMonth = "results/latency/lat_month_" + query + "_" + parall + ".csv"
+
+if os.path.exists(filenameHour):
+    os.remove(filenameHour)
+if os.path.exists(filenameDay):
+    os.remove(filenameDay)
+if os.path.exists(filenameWeek):
+    os.remove(filenameWeek)
+if os.path.exists(filenameMonth):
+    os.remove(filenameMonth)
+
+fileHour = open(filenameHour, 'a+')
+fileHour.write(csv_header)
+fileWeek = open(filenameWeek, 'a+')
+fileWeek.write(csv_header)
+if query != "q1":
+    fileDay = open(filenameDay, 'a+')
+    fileDay.write(csv_header)
+else:
+    fileMonth = open(filenameMonth, 'a+')
+    fileMonth.write(csv_header)
+
+while t != 65:
+
+    print("—————————————————— Time: " + str(t) + " ————————————————————")
     print("------------------------------------------Hour")
+    hourStats = []
     for req in hourLatencies:
         u = metricsListURL + "?get=" + req
         v = getLatencyValuesFromURL(u)
+        hourStats.append(v)
         print(v)
+    hourStats.sort()
+    hourCsvLine = str(t)
+    for i in hourStats:
+        hourCsvLine = hourCsvLine + ";" + substring_after(i, " : ")
+    fileHour.write(hourCsvLine + "\n")
 
     if query != "q1":
         print("------------------------------------------Day")
-        for req in weekLatencies:
+        dayStats = []
+        for req in dayLatencies:
             u = metricsListURL + "?get=" + req
             v = getLatencyValuesFromURL(u)
+            dayStats.append(v)
             print(v)
+        dayStats.sort()
+        dayCsvLine = str(t)
+        for i in dayStats:
+            dayCsvLine = dayCsvLine + ";" + substring_after(i, " : ")
+        fileDay.write(dayCsvLine + "\n")
 
     print("------------------------------------------Week")
+    weekStats = []
     for req in weekLatencies:
         u = metricsListURL + "?get=" + req
         v = getLatencyValuesFromURL(u)
+        weekStats.append(v)
         print(v)
+    weekStats.sort()
+    weekCsvLine = str(t)
+    for i in weekStats:
+        weekCsvLine = weekCsvLine + ";" + substring_after(i, " : ")
+
+    fileWeek.write(weekCsvLine + "\n")
 
     if query == "q1":
         print("------------------------------------------Month")
+        monthStats = []
         for req in monthLatencies:
             u = metricsListURL + "?get=" + req
             v = getLatencyValuesFromURL(u)
+            monthStats.append(v)
             print(v)
+        monthStats.sort()
+        monthCsvLine = str(t)
+        for i in monthStats:
+            monthCsvLine = monthCsvLine + ";" + substring_after(i, " : ")
+
+        fileMonth.write(monthCsvLine + "\n")
+
     print("—————————————————————————————————————————————————")
     print("")
     t = t+5
     time.sleep(5)
+
+fileHour.close()
+fileWeek.close()
+if query != "q1":
+    fileDay.close()
+else:
+    fileMonth.close()

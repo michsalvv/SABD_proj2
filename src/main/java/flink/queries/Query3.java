@@ -109,6 +109,7 @@ public class Query3 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new CellStatistics(Config.HOUR))
                 .name("Hour Output Formatter ProcessFunction")
+                .uid("hour-output")
                 .setParallelism(1)
                 .disableChaining();
 
@@ -150,6 +151,7 @@ public class Query3 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
                 .process(new CellStatistics(Config.DAY))
                 .name("Day Output Formatter ProcessFunction")
+                .uid("day-output")
                 .setParallelism(1)
                 .disableChaining();
 
@@ -191,6 +193,7 @@ public class Query3 extends Query {
                 .windowAll(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new CellStatistics(Config.WEEK))
                 .name("Week Output Formatter ProcessFunction")
+                .uid("week-output")
                 .setParallelism(1)
                 .disableChaining();
 

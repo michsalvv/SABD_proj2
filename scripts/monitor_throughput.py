@@ -3,7 +3,6 @@
 import urllib.request
 import time
 import sys
-import csv
 import os
 
 query = sys.argv[1]
@@ -77,9 +76,9 @@ if query == "q2":
 
 
 if query == "q3":
-    hourVertexID = "4e0711b6163f6dafdca67082f3819e5c"
-    dayVertexID = "6bb684fdc432358c715aaedbc372bf83"
-    weekVertexID = "49379dd06e51c67b842e9ce40142e66e"
+    hourVertexID = "8422bf6d2e8d4274034e58b5c32c2a8d"
+    dayVertexID = "5e0502c34a694fec3eae449313a45aa6"
+    weekVertexID = "4607136e4110d037328faa5a96eea425"
     hourMeterID = "Hour_Output_Formatter_ProcessFunction.Throughput"
     dayMeterID = "Day_Output_Formatter_ProcessFunction.Throughput"
     weekMeterID = "Week_Output_Formatter_ProcessFunction.Throughput"
@@ -108,15 +107,16 @@ print("Month Query:", monthURL)
 
 
 t = 0
-filename = "results/thr_" + query + "_" + parall + ".csv"
+filename = "results/throughput/thr_" + query + "_" + parall + ".csv"
 if os.path.exists(filename):
     os.remove(filename)
 f = open(filename, 'a')
+f.write(csvHeader + ";\n")
 
+time.sleep(5)
 while t != 65:
-    csvLine = ""
     print("-------------- Time: " + str(t) + " --------------")
-    csvLine = csvLine + str(t) + ";"
+    csvLine = str(t) + ";"
 
     hourThroughput = getThroughputFromURL(hourURL)
     print(hourThroughput)
@@ -134,9 +134,8 @@ while t != 65:
     if query == "q1":
         monthThroughput = getThroughputFromURL(monthURL)
         print(monthThroughput)
-        csvLine = ";" + csvLine + substring_after(hourThroughput, "Month : ")
+        csvLine = csvLine + ";" + substring_after(monthThroughput, "Month : ")
 
-    print("CSV: " + csvLine)
     f.write(csvLine + "\n")
 
     print("------------------------------------------")

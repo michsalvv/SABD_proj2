@@ -1,9 +1,9 @@
 package flink.deserialize;
 
-import flink.exception.CoordinatesOutOfBoundException;
+import flink.deserialize.exception.CoordinatesOutOfBoundException;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import flink.exception.TemperatureOutOfBoundException;
+import flink.deserialize.exception.TemperatureOutOfBoundException;
 
 import java.nio.charset.StandardCharsets;
 
