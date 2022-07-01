@@ -140,7 +140,7 @@ public class Query2 extends Query {
         weeklyResults.toStream().to("q2-weekly", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query2.csv", streams, "Q2");
+        MetricsCalculator metricsCalculator = new MetricsCalculator("results/kafka/thr_query2.csv", streams, "Q2");
 
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();

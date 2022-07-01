@@ -17,7 +17,11 @@ fi
 echo "------------------------------------------------------------"
 echo "Cleaning Kafka Environment"
 echo "------------------------------------------------------------"
-sudo sh scripts/setup_kafka_env.sh 2>/dev/null
+sudo sh scripts/setup_kafka_env.sh 1> /dev/null 2>/dev/null
+
+# Create topic for kafka consumer with parallelism specified by the user
+sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --create --topic kafka-events --partitions $2 --replication-factor 1
+
 
 echo "------------------------------------------------------------"
 echo "Starting Kafka Producer in Background"
@@ -25,8 +29,6 @@ echo "------------------------------------------------------------"
 echo "INFO: jdk path is: '/usr/java/jdk-11.0.15/bin/java'. Change this script with your jdk-11 path."
 
 
-# Create topic for kafka consumer with parallelism specified by the user
-sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --create --topic kafka-events --partitions $2 --replication-factor 1
 
 
 

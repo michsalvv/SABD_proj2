@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.*;
 
 // Non togliere i getter e setter altrimenti non serializza
-public class LocationAggregator implements Serializable, OutputQuery {
+public class LocationAggregator implements Serializable {
 
     private static final String DELIMITER = ";";
     TreeMap<Double, Long> topLocations = new TreeMap<>();
@@ -111,16 +111,6 @@ public class LocationAggregator implements Serializable, OutputQuery {
 
         return timestamp + ";"
                 + topMeans
-                + lowMeans.substring(0, lowMeans.length()-1);
-    }
-
-    @Override
-    public String toCSV() {
-        return null;
-    }
-
-    @Override
-    public String getCSVHeader() {
-        return null;
+                + lowMeans.substring(0, lowMeans.length() - 1);
     }
 }
