@@ -19,7 +19,6 @@ public class OutQ3 implements OutputQuery {
     public String toCSV() {
         slotTimestamp = row.get(0).getTimestamp();
         String slot = getTimestampSlot();
-        System.out.println("Writing Results for Window: " + slot);
         StringBuilder builder = new StringBuilder();
         builder.append(slot).append(delimiter);
         for (ValQ3 val :row) {

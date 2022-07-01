@@ -25,7 +25,6 @@ public class OutQ2 implements OutputQuery {
     public String toCSV() {
         slotTimestamp = highMean.get(0).getTimestamp();
         String slot = getTimestampSlot();
-        System.out.println("Writing Results for Window: " + slot);
         StringBuilder builder = new StringBuilder();
         builder.append(slot).append(delimiter);
 

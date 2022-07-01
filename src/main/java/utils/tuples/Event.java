@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class Event implements Serializable {
-    //TODO mettere tutti i campi del dataset
     private Timestamp timestamp;
     private Long sensor_id;
     private Double temperature;

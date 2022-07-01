@@ -100,8 +100,10 @@ public class Query3 extends Query {
         var hourResult = hourStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.minutes(60)))
                 .process(new CellStatistics(Config.HOUR))
-                .name("OutputFormatter ProcessFunction")
-                .setParallelism(1);
+                .name("Hour Output Formatter ProcessFunction")
+                .uid("hour-output")
+                .setParallelism(1)
+                .disableChaining();
 
         /**
          * Calcolo su finestra di un giorno
@@ -140,8 +142,10 @@ public class Query3 extends Query {
         var dayResult = dayStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.days(1)))
                 .process(new CellStatistics(Config.DAY))
-                .name("OutputFormatter ProcessFunction")
-                .setParallelism(1);
+                .name("Day Output Formatter ProcessFunction")
+                .uid("day-output")
+                .setParallelism(1)
+                .disableChaining();
 
         /**
          * Calcolo su finestra di una settimana
@@ -180,8 +184,10 @@ public class Query3 extends Query {
         var weekResult = weekStatistics
                 .windowAll(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .process(new CellStatistics(Config.WEEK))
-                .name("OutputFormatter ProcessFunction")
-                .setParallelism(1);
+                .name("Week Output Formatter ProcessFunction")
+                .uid("week-output")
+                .setParallelism(1)
+                .disableChaining();
 
         var hourSink = Tools.buildSink("results/q3-res/hourly");
         var daySink = Tools.buildSink("results/q3-res/daily");
