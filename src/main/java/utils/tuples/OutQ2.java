@@ -1,9 +1,13 @@
 package utils.tuples;
 
+import scala.Enumeration;
 import utils.Config;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 public class OutQ2 implements OutputQuery {
     private static final String header = "ts;location1;avg_temp1;location2;avg_temp2;location3;avg_temp3;" +
@@ -23,15 +27,17 @@ public class OutQ2 implements OutputQuery {
         String slot = getTimestampSlot();
         StringBuilder builder = new StringBuilder();
         builder.append(slot).append(delimiter);
-        for (ValQ2 val :highMean) {
+
+        for (ValQ2 val : highMean) {
             builder.append(val.getLocation()).append(delimiter);
-            builder.append(val.getMeanTemperature()).append(delimiter);
+            builder.append(val.getMean_temp()).append(delimiter);
         }
 
-        for (ValQ2 val :lowMean) {
+        for (ValQ2 val : lowMean) {
             builder.append(val.getLocation()).append(delimiter);
-            builder.append(val.getMeanTemperature()).append(delimiter);
+            builder.append(val.getMean_temp()).append(delimiter);
         }
+
         // Simply remove last useless delimiter
         if (builder.length() > 0) {
             builder.setLength(builder.length() - 1);

@@ -22,27 +22,19 @@
 
 package flink.queries;
 
-import flink.deserialize.Event;
+import utils.tuples.Event;
 import flink.queries.aggregate.AvgQ3;
 import flink.queries.process.CellStatistics;
 import flink.queries.process.Median;
 import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
-import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import utils.CSVEncoder;
 import utils.Config;
 import utils.Tools;
-import utils.grid.Cell;
 import utils.grid.Grid;
-import utils.tuples.OutputQuery;
 import utils.tuples.ValQ3;
-
-import java.util.concurrent.TimeUnit;
 
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
@@ -68,7 +60,7 @@ public class Query3 extends Query {
                 .filter(event -> isSensorInGrid(event.getLatitude(), event.getLongitude()))
                 .map(event -> new ValQ3(event.getTimestamp(),
                         event.getTemperature(), 0D, grid.getCellFromEvent(event).getId()))
-                .keyBy(v -> v.getCell_id());
+                .keyBy(ValQ3::getCell_id);
 
         /**
          * Calcolo su finestra di un'ora
@@ -90,8 +82,8 @@ public class Query3 extends Query {
         // [MEAN|MEDIAN]
         var hourJoined = hourMean
                 .join(hourMedian)
-                .where(e -> e.getCell_id())
-                .equalTo(f -> f.getCell_id())
+                .where(ValQ3::getCell_id)
+                .equalTo(ValQ3::getCell_id)
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)));
 
         // Campi di interesse per l'output

@@ -1,6 +1,6 @@
 package flink.queries.aggregate;
 
-import flink.deserialize.Event;
+import utils.tuples.Event;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import utils.Config;
 import utils.Tools;
@@ -39,7 +39,7 @@ public class AvgQ2 implements AggregateFunction<Event, AccumulatorQ2, ValQ2> {
         double mean = acc.sum / (double) acc.count;
         ValQ2 result = new ValQ2();
         result.setLocation(acc.location);
-        result.setMeanTemperature(mean);
+        result.setTemperature(mean);
         result.setOccurrences(acc.count);
         if (windowType.equals(Config.HOUR)) {
             result.setTimestamp(Tools.getHourSlot(acc.last_timestamp));

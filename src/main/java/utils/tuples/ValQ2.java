@@ -1,72 +1,85 @@
 package utils.tuples;
 
+import org.apache.flink.api.java.tuple.Tuple2;
 import utils.Tools;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ValQ2 implements Serializable {
     Timestamp timestamp;
     Long location;
-    Double meanTemperature;
     Long occurrences;
+    Double temperature;
+    Double mean_temp;
 
-    public ValQ2(Timestamp timestamp, Long location, Double meanTemperature) {
-        this.timestamp = timestamp;
-        this.meanTemperature = meanTemperature;
-        this.location = location;
-    }
+    List<Tuple2<Long, Double>> highLocations;
 
-    public ValQ2(Timestamp timestamp, Long location, Double meanTemperature, Long occurrences) {
-        this.timestamp = timestamp;
-        this.meanTemperature = meanTemperature;
-        this.location = location;
-        this.occurrences = occurrences;
+    List<Tuple2<Long, Double>> lowLocations;
+
+
+
+    public ValQ2(String rawMessage) {
+        var values = rawMessage.split(";");
+        this.timestamp = Timestamp.valueOf(values[0]);
+        this.location = Long.parseLong(values[1]);
+        this.occurrences = Long.parseLong(values[2]);
+        this.temperature = Tools.stringToDouble(values[3]);
+        this.mean_temp = Tools.stringToDouble(values[4]);
     }
 
     public ValQ2() {
-    }
-
-    public static ValQ2 create(String rawMessage) throws ParseException {
-        var values = rawMessage.split(";");
-        return new ValQ2(Timestamp.valueOf(values[0]),
-                Long.parseLong(values[3]),
-                Tools.stringToDouble(values[2]));
     }
 
     public Timestamp getTimestamp() {
         return timestamp;
     }
 
-
-    public Double getMeanTemperature() {
-        return meanTemperature;
+    public Double getTemperature() {
+        if (temperature == null) return 0D;
+        return temperature;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
-
-
-    public void setMeanTemperature(Double meanTemperature) {
-        this.meanTemperature = meanTemperature;
+    public Double getMean_temp() {
+        if (mean_temp == null) return 0D;
+        return mean_temp;
     }
 
     public Long getOccurrences() {
+        if (occurrences == null) occurrences=0L;
         return occurrences;
-    }
-
-    public void setOccurrences(Long occurrences) {
-        this.occurrences = occurrences;
     }
 
     public Long getLocation() {
         return location;
     }
 
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setTemperature(Double temperature) {
+        this.temperature = temperature;
+    }
+
+    public void setOccurrences(Long occurrences) {
+        this.occurrences = occurrences;
+    }
+
+    public void setMean_temp(Double mean_temp) {
+        this.mean_temp = mean_temp;
+    }
+
     public void setLocation(Long location) {
         this.location = location;
+    }
+
+    public void calculateMean() {
+        this.mean_temp = this.temperature / (double) this.occurrences;
     }
 
     @Override
@@ -74,8 +87,11 @@ public class ValQ2 implements Serializable {
         return "ValQ2{" +
                 "timestamp=" + timestamp +
                 ", location=" + location +
-                ", temperature=" + meanTemperature +
                 ", occurrences=" + occurrences +
+                ", temperature=" + temperature +
+                ", mean_temp=" + mean_temp +
                 '}';
     }
+
+    public String toSerialize() { return timestamp+";"+location+";"+occurrences+";"+temperature+";"+mean_temp; }
 }

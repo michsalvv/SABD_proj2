@@ -18,7 +18,7 @@ public class Median extends ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWin
         var sorted = Tools.sortByTemperature(iterable);
         double median;
         int size = sorted.size();
-        if (sorted.size() % 2 == 0)
+        if (size % 2 == 0)
             median = (sorted.get(size/2).getMean_temp() + sorted.get(size/2-1).getMean_temp())/2;
         else
             median = sorted.get(size/2).getMean_temp();

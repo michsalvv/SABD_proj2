@@ -1,10 +1,9 @@
 package kafka;
 
-import org.apache.flink.shaded.netty4.io.netty.handler.codec.sctp.SctpOutboundByteStreamHandler;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import kafka.exception.SimulationTimeException;
+import org.apache.kafka.streams.StreamsConfig;
+import utils.exception.SimulationTimeException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import utils.Config;
@@ -16,20 +15,29 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.Properties;
-import java.util.TimeZone;
 
 public class Producer {
+
+    private static String topic;
 
     public static void main(String[] args) throws InterruptedException, IOException, ParseException {
 
         Properties props = new Properties();
-        props.put("bootstrap.servers", "kafka-broker:29092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:29092");
+        props.put("key.serializer", "org.apache.kafka.common.serialization.LongSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        org.apache.kafka.clients.producer.Producer<Object, String> producer = new KafkaProducer<>(props);
+        org.apache.kafka.clients.producer.Producer<Long, String> producer = new KafkaProducer<>(props);
+
+        switch (args[0]) {
+            case ("flink"):
+                topic = "flink-events";
+                break;
+            case ("kafka") :
+                topic = "kafka-events";
+                break;
+        }
 
         boolean first = true;
         Timestamp previous = null;
@@ -47,12 +55,6 @@ public class Producer {
                 DateTime dateTime = new DateTime( date, timeZone );
                 long ts = dateTime.getMillis();
                 Timestamp timestamp = new Timestamp(ts);
-//                System.out.println("-------------------------------------");
-//                System.out.println( "date: " + date );
-//                System.out.println( "dateTime: " + dateTime );
-//                System.out.println( "Millis: " + ts );
-//                System.out.println( "Our TS: " + timestamp );
-//                System.out.println("-------------------------------------");
 
                 Long sensor_id = Long.parseLong(values[0]);
                 Double temperature = Double.parseDouble(values[9]);
@@ -62,7 +64,7 @@ public class Producer {
                 var message = String.format("%s;%d;%,.4f;%d;%,.4f;%,.4f;", timestamp, sensor_id, temperature,
                         location, latitude, longitude);
                 var kafka_ts = ts + Config.CEST;
-                var producerRecord = new ProducerRecord<>("flink-events", 0, kafka_ts, null,  message);
+                var producerRecord = new ProducerRecord<>(topic, null, kafka_ts, sensor_id,  message);
                 if (first) {
                     first = false;
                 } else {
@@ -77,7 +79,7 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-//                System.out.printf("Send: %s%n", message);
+                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }

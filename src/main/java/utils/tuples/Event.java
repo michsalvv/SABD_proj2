@@ -1,4 +1,4 @@
-package flink.deserialize;
+package utils.tuples;
 
 import utils.Tools;
 
@@ -34,37 +34,29 @@ public class Event implements Serializable {
                 ", longitude=" + longitude +
                 '}';
     }
-    public Timestamp getTimestamp() {
-        return timestamp;
+    public String toString_reduced() {
+        return timestamp +
+                ";" + sensor_id +
+                ";" + temperature +
+                ";" + location +
+                ";" + latitude +
+                ";" + longitude ;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
-    }
+    public Timestamp getTimestamp() { return timestamp; }
+    public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
 
-    public Long getSensor_id() {
-        return sensor_id;
-    }
+    public Long getSensor_id() { return sensor_id; }
 
-    public void setSensor_id(Long sensor_id) {
-        this.sensor_id = sensor_id;
-    }
+    public void setSensor_id(Long sensor_id) { this.sensor_id = sensor_id; }
 
-    public Double getTemperature() {
-        return temperature;
-    }
+    public Double getTemperature() { return temperature; }
 
-    public void setTemperature(Double temperature) {
-        this.temperature = temperature;
-    }
+    public void setTemperature(Double temperature) { this.temperature = temperature; }
 
-    public Long getLocation() {
-        return location;
-    }
+    public Long getLocation() { return location; }
 
-    public void setLocation(Long location) {
-        this.location = location;
-    }
+    public void setLocation(Long location) { this.location = location; }
 
     public Double getLatitude() { return latitude; }
 

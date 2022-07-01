@@ -1,7 +1,7 @@
 package flink;
 
-import flink.deserialize.EventDeserializer;
-import flink.deserialize.Event;
+import utils.serdes.EventSerde;
+import utils.tuples.Event;
 import flink.queries.Query;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -15,8 +15,6 @@ import flink.queries.Query1;
 import flink.queries.Query2;
 import flink.queries.Query3;
 import utils.Config;
-
-import java.time.Duration;
 
 public class Main {
     static Query query;
@@ -54,10 +52,14 @@ public class Main {
                 .setTopics("flink-events")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
-                .setValueOnlyDeserializer(new EventDeserializer())
+                .setValueOnlyDeserializer(new EventSerde())
                 .build();
 
         // BIBBIA
+//        var src = env.fromSource(source, WatermarkStrategy
+//                        .<Event>forMonotonousTimestamps()
+//                        .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
+//                "Kafka Source");
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps(),"Kafka Source")
                 .setParallelism(1);

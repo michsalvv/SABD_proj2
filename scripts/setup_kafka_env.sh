@@ -1,12 +1,5 @@
 #! /bin/bash
 
-## cancel previous flink jobs
-
-for ID in $(sudo docker exec -it jobmanager bash -c "flink list | grep RUNNING | awk '{print \$4}'")
-do 
-    sudo docker exec -it jobmanager bash -c "flink cancel $ID"
-done
-
 ## clean kafka topics
 sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --delete --topic kafka-events;
 sudo docker exec kafka-broker kafka-streams-application-reset --bootstrap-servers kafka-broker:9092 --application-id  kafka-streams --input-topics kafka-events --force;
@@ -24,8 +17,3 @@ sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092
 sudo docker exec kafka-broker kafka-streams-application-reset --bootstrap-servers kafka-broker:9092 --application-id  kafka-streams --input-topics q2-hourly --force;
 sudo docker exec kafka-broker kafka-streams-application-reset --bootstrap-servers kafka-broker:9092 --application-id  kafka-streams --input-topics q2-daily --force;
 sudo docker exec kafka-broker kafka-streams-application-reset --bootstrap-servers kafka-broker:9092 --application-id  kafka-streams --input-topics q2-weekly --force;
-
-## copy jar in flink's jobmanager
-sudo docker cp target/SABD_proj2-1.0.jar jobmanager:/home
-
-sudo docker exec taskmanager rm -rf /opt/flink/results/
