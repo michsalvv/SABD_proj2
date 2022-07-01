@@ -105,7 +105,7 @@ public class Query1 extends Query {
 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query1.csv", streams);
+        MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query1.csv", streams, "Q1");
 
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();

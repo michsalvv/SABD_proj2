@@ -15,15 +15,17 @@ public class MetricsCalculator extends Thread {
     private Map<MetricName, ? extends Metric> metrics;
     private KafkaStreams stream;
     private long startTime;
-    private double hourlyRecords, weeklyRecords, monthlyRecords, latency, e2e_latency;
+    private double hourlyRecords, weeklyRecords, monthlyRecords, dailyRecords;
     private final FileWriter fileWriter;
     private String outputName;
     private String DELIMITER = ";";
     private StringBuilder outputBuilder;
+    private String query;
     private int slot = 0;
-    public MetricsCalculator(String filename, KafkaStreams stream) {
+    public MetricsCalculator(String filename, KafkaStreams stream, String query) {
         this.outputName = filename;
         this.stream = stream;
+        this.query = query;
 
         try {
             Path path = Paths.get(filename);
@@ -59,23 +61,19 @@ public class MetricsCalculator extends Thread {
                     weeklyRecords = (double) metric.metricValue();
                 }
 
-                if (metricName.name().contentEquals("monthly-thr")) {
+                if (query.contentEquals("Q1") && metricName.name().contentEquals("monthly-thr")) {
                     monthlyRecords = (double) metric.metricValue();
                 }
 
-                if (metricName.name().contentEquals("process-latency-avg") && metricName.group().contentEquals("stream-thread-metrics")){
-                    latency = (double) metric.metricValue();
-                }
-                if (metricName.name().contentEquals("record-e2e-latency-avg") && metricName.group().contentEquals("stream-thread-metrics")){
-                    System.out.println(metric.metricName() + " "+metric.metricValue());
+                if (query.contentEquals("Q2") && metricName.name().contentEquals("daily-thr")) {
+                    dailyRecords = (double) metric.metricValue();
                 }
 
             });
 
             calculateTHR();
             try {
-                sleep(1000);
-//                sleep(5 * 1000);
+                sleep(5 * 1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -86,12 +84,17 @@ public class MetricsCalculator extends Thread {
         long currentTime = System.currentTimeMillis();
         double hourlyTHR = hourlyRecords / ((currentTime - startTime) / 1000D);
         double weeklyTHR = weeklyRecords / ((currentTime - startTime) / 1000D);
-        double monthlyTHR = monthlyRecords / ((currentTime - startTime) / 1000D);
-        System.out.println("latency: "+latency);
+        double monthlyTHR = 0;
+        double dailyThr=0;
 
-        /*
+        if (query.contentEquals("Q1")) {
+            monthlyTHR = monthlyRecords / ((currentTime - startTime) / 1000D);
+        }else {
+            dailyThr = dailyRecords / ((currentTime - startTime) / 1000D);
+        }
 
-        if (hourlyTHR > 0 || weeklyTHR > 0 || monthlyTHR > 0) {
+
+        if (hourlyTHR > 0 || weeklyTHR > 0 || monthlyTHR > 0 || dailyThr > 0) {
             System.out.println("startTime: " + startTime);
             System.out.println("currentTime: " + currentTime);
             System.out.println("hourlyRec: " + this.hourlyRecords);
@@ -100,6 +103,7 @@ public class MetricsCalculator extends Thread {
             System.out.println("hourlyTHR: " + hourlyTHR);
             System.out.println("weeklyTHR: " + weeklyTHR);
             System.out.println("monthlyTHR: " + monthlyTHR);
+            System.out.println("dailyTHR: " + dailyThr);
             System.out.println("----------------\n");
 
 
@@ -107,7 +111,9 @@ public class MetricsCalculator extends Thread {
                 outputBuilder.append(slot).append(DELIMITER);
                 outputBuilder.append(hourlyTHR).append(DELIMITER);
                 outputBuilder.append(weeklyTHR).append(DELIMITER);
-                outputBuilder.append(monthlyTHR).append("\n");
+                if (query.contentEquals("Q1"))
+                    outputBuilder.append(monthlyTHR).append("\n");
+                else outputBuilder.append(dailyThr).append("\n");
 
                 fileWriter.append(outputBuilder.toString());
                 fileWriter.flush();
@@ -118,6 +124,5 @@ public class MetricsCalculator extends Thread {
                 throw new RuntimeException(e);
             }
         }
-        */
     }
 }

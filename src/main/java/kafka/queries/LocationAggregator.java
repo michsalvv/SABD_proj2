@@ -1,11 +1,13 @@
 package kafka.queries;
 
+import utils.tuples.OutputQuery;
 import utils.tuples.ValQ2;
 
+import java.io.Serializable;
 import java.util.*;
 
 // Non togliere i getter e setter altrimenti non serializza
-public class LocationAggregator {
+public class LocationAggregator implements Serializable, OutputQuery {
 
     private static final String DELIMITER = ";";
     TreeMap<Double, Long> topLocations = new TreeMap<>();
@@ -111,5 +113,15 @@ public class LocationAggregator {
         return timestamp + ";"
                 + topMeans
                 + lowMeans.substring(0, lowMeans.length()-1);
+    }
+
+    @Override
+    public String toCSV() {
+        return null;
+    }
+
+    @Override
+    public String getCSVHeader() {
+        return null;
     }
 }

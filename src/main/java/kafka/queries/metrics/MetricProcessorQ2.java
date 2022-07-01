@@ -6,25 +6,19 @@ import org.apache.kafka.common.metrics.MetricConfig;
 import org.apache.kafka.common.metrics.Metrics;
 import org.apache.kafka.common.metrics.Sensor;
 import org.apache.kafka.common.metrics.stats.CumulativeCount;
-import org.apache.kafka.common.metrics.stats.CumulativeSum;
-import org.apache.kafka.common.metrics.stats.Min;
 import org.apache.kafka.streams.StreamsMetrics;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
-import scala.Enumeration;
-import utils.tuples.OutputQuery;
-import utils.tuples.ValQ1;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MetricProcessor implements Processor<Windowed<Long>, ValQ1, Void, Void> {
+public class MetricProcessorQ2 implements Processor<String, LocationAggregator, Void, Void> {
     private String window;
 
-    public MetricProcessor(String window) {
+    public MetricProcessorQ2(String window) {
         this.window = window;
     }
 
