@@ -11,9 +11,9 @@
  * – every 1 week (event time)
  * – from the beginning of the dataset
  */
-// TODO vedere i parallelismi su tutte le query
 package flink.queries;
 
+import flink.queries.metrics.ThroughputMetricQ1;
 import flink.queries.aggregate.AvgQ1;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -34,6 +34,7 @@ public class Query1 extends Query {
 
     @Override
     public void execute() throws Exception {
+        System.out.println("Start Time: " + Tools.getTimestamp());
 
         var keyed = src
                 .filter(event -> event.getSensor_id() < 10000)
@@ -42,22 +43,41 @@ public class Query1 extends Query {
         var hourResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.hours(1)))
                 .aggregate(new AvgQ1(Config.HOUR))
-                .name("Hourly Window Mean AggregateFunction");
+                .name("Hourly Window Mean AggregateFunction")
+                .disableChaining();
+
+        hourResult.map(new ThroughputMetricQ1())
+                .uid("hour-throughput")
+                .name("HourMetric")
+                .setParallelism(1);
 
         var weekResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
                 .aggregate(new AvgQ1(Config.WEEK))
-                .name("Weekly Window Mean AggregateFunction");
+                .name("Weekly Window Mean AggregateFunction")
+                .disableChaining();
+
+        weekResult.map(new ThroughputMetricQ1())
+                .uid("week-throughput")
+                .name("WeekMetric")
+                .setParallelism(1);
 
         var monthResult = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(31),Time.days(17)))
                 .aggregate(new AvgQ1(Config.MONTH))
-                .name("Monthly Window Mean AggregateFunction");
+                .name("Monthly Window Mean AggregateFunction")
+                .disableChaining();
+
+
+        monthResult.map(new ThroughputMetricQ1())
+                .uid("month-throughput")
+                .name("MonthMetric")
+                .setParallelism(1);
 
         var hourSink = Tools.buildSink("results/q1-res/hourly");
         var weekSink = Tools.buildSink("results/q1-res/weekly");
         var monthSink = Tools.buildSink("results/q1-res/monthly");
-//
+
         hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
         weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
         monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);             // Il sink deve avere parallelismo 1

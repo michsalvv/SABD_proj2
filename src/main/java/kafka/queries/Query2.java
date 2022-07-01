@@ -36,11 +36,11 @@ import static org.apache.kafka.streams.kstream.Suppressed.BufferConfig.unbounded
  * location10, avg_temp10
  */
 public class Query2 extends Query {
-    KStream<Integer, Event> src;
+    KStream<Long, Event> src;
     StreamsBuilder builder;
     Properties props;
 
-    public Query2(KStream<Integer, Event> src, StreamsBuilder builder, Properties props) {
+    public Query2(KStream<Long, Event> src, StreamsBuilder builder, Properties props) {
         this.src = src;
         this.builder = builder;
         this.props = props;

@@ -49,7 +49,6 @@ public class LocationAggregator implements Serializable, OutputQuery {
 
     public void updateLows(ValQ2 val) {
 //        LOW:      2,3,4,5,8
-
         if (lowLocations.containsKey(val.getMean_temp())) return;
 
         Double highestLowMean = lowLocations.lastKey();

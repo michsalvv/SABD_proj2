@@ -1,11 +1,15 @@
 package utils;
 
+import flink.queries.aggregate.AccumulatorQ1;
+import org.apache.flink.api.common.accumulators.Accumulator;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import utils.tuples.*;
 import utils.tuples.ValQ3.ValQ3Comparator;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -26,9 +30,10 @@ public class Tools {
 
     public static OutQ2 getLocationsRanking(Iterable<ValQ2> list, String window) {
         List<ValQ2> high = new ArrayList<>();
-        List<Long> highIds = new ArrayList<>();
         List<ValQ2> low = new ArrayList<>();
+        List<Long> highIds = new ArrayList<>();
         List<Long> lowIds = new ArrayList<>();
+
         int n = 0;
 
         while (n!=5) {
@@ -168,7 +173,6 @@ public class Tools {
     }
 
     public static StreamingFileSink<OutputQuery> buildSink (String outputPath) {
-
         final StreamingFileSink<OutputQuery> sink = StreamingFileSink
                 .forRowFormat(new Path(outputPath), new CSVEncoder())
                 .withRollingPolicy(
@@ -179,7 +183,10 @@ public class Tools {
                                 .build())
                 .withOutputFileConfig(Config.outputFileConfig)
                 .build();
-
         return sink;
+    }
+
+    public static Timestamp getTimestamp() {
+        return new Timestamp(System.currentTimeMillis());
     }
 }

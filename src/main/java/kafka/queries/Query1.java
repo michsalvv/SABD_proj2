@@ -5,7 +5,10 @@ import kafka.queries.Windows.WeeklyWindow;
 import kafka.queries.metrics.MetricProcessorSupplier;
 import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import utils.tuples.Event;
 import utils.Tools;
@@ -16,11 +19,11 @@ import java.time.Duration;
 import java.util.Properties;
 
 public class Query1 extends Query {
-    KStream<Integer, Event> src;
+    KStream<Long, Event> src;
     StreamsBuilder builder;
     Properties props;
 
-    public Query1(KStream<Integer, Event> src, StreamsBuilder builder, Properties props) {
+    public Query1(KStream<Long, Event> src, StreamsBuilder builder, Properties props) {
         this.src = src;
         this.builder = builder;
         this.props = props;
@@ -31,13 +34,13 @@ public class Query1 extends Query {
 
         var keyed = src
                 .filter((key, event) -> event!=null && event.getSensor_id() < 10000)
-                .map((KeyValueMapper<Integer, Event, KeyValue<Integer, ValQ1>>) (integer, event) -> {
+                .map((KeyValueMapper<Long, Event, KeyValue<Long, ValQ1>>) (along, event) -> {
                     ValQ1 v = new ValQ1();
                     v.setTimestamp(event.getTimestamp());
                     v.setTemperature(event.getTemperature());
                     v.setSensor_id(event.getSensor_id());
                     v.setOccurrences(1L);
-                    return new KeyValue<>(integer, v);
+                    return new KeyValue<>(along, v);
                 })
                 .selectKey((key, values) -> values.getSensor_id());
 
@@ -102,7 +105,6 @@ public class Query1 extends Query {
 
         hourlyGrouped.toStream().to("q1-hourly", Produced.with(
                 WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
-
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         MetricsCalculator metricsCalculator = new MetricsCalculator("Results/kafka_thr_query1.csv", streams, "Q1");
