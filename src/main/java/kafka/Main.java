@@ -29,9 +29,9 @@ public class Main {
 
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<Integer, Event> src =
-                builder.stream("flink-events",
-                        Consumed.with(Serdes.Integer(), CustomSerdes.Event()));
+        final KStream<Long, Event> src =
+                builder.stream("kafka-events",
+                        Consumed.with(Serdes.Long(), CustomSerdes.Event()));
 
         Query q1 = new Query1(src, builder, props);
         Query q2 = new Query2(src, builder, props);

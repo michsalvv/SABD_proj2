@@ -60,7 +60,7 @@ public class Query3 extends Query {
                 .filter(event -> isSensorInGrid(event.getLatitude(), event.getLongitude()))
                 .map(event -> new ValQ3(event.getTimestamp(),
                         event.getTemperature(), 0D, grid.getCellFromEvent(event).getId()))
-                .keyBy(v -> v.getCell_id());
+                .keyBy(ValQ3::getCell_id);
 
         /**
          * Calcolo su finestra di un'ora
@@ -82,8 +82,8 @@ public class Query3 extends Query {
         // [MEAN|MEDIAN]
         var hourJoined = hourMean
                 .join(hourMedian)
-                .where(e -> e.getCell_id())
-                .equalTo(f -> f.getCell_id())
+                .where(ValQ3::getCell_id)
+                .equalTo(ValQ3::getCell_id)
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)));
 
         // Campi di interesse per l'output

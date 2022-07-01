@@ -26,9 +26,10 @@ public class Tools {
 
     public static OutQ2 getLocationsRanking(Iterable<ValQ2> list, String window) {
         List<ValQ2> high = new ArrayList<>();
-        List<Long> highIds = new ArrayList<>();
         List<ValQ2> low = new ArrayList<>();
+        List<Long> highIds = new ArrayList<>();
         List<Long> lowIds = new ArrayList<>();
+
         int n = 0;
 
         while (n!=5) {
