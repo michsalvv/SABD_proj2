@@ -1,11 +1,15 @@
 package kafka.queries;
 
 import kafka.queries.Windows.WeeklyWindow;
+import kafka.queries.metrics.MetricProcessorSupplier;
+import kafka.queries.metrics.MetricProcessorSupplierQ2;
+import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.ProcessorSupplier;
 import scala.tools.nsc.Global;
 import utils.tuples.Event;
 import utils.Tools;
@@ -123,7 +127,12 @@ public class Query2 extends Query {
                         Materialized.with(Serdes.String(), CustomSerdes.LocationAggregator()));
 
 
-
+        /*
+            Custom processors for only metrics computation
+         */
+        hourlyResults.toStream().process(new MetricProcessorSupplierQ2("hourly-thr"));
+        dailyResults.toStream().process(new MetricProcessorSupplierQ2("daily-thr"));
+        weeklyResults.toStream().process(new MetricProcessorSupplierQ2("weekly-thr"));
 
 
         hourlyResults.toStream().to("q2-hourly", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
@@ -131,10 +140,11 @@ public class Query2 extends Query {
         weeklyResults.toStream().to("q2-weekly", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        MetricsCalculator metricsCalculator = new MetricsCalculator("results/kafka/thr_query2.csv", streams, "Q2");
 
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();
-
+        metricsCalculator.run();
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

@@ -107,7 +107,7 @@ public class Query1 extends Query {
                 WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        MetricsCalculator metricsCalculator = new MetricsCalculator("results/kafka/thr_query1.csv", streams);
+        MetricsCalculator metricsCalculator = new MetricsCalculator("results/kafka/thr_query1.csv", streams, "Q1");
 
         streams.cleanUp(); //clean up of the local StateStore
         streams.start();

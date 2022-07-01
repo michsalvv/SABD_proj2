@@ -3,6 +3,7 @@ package kafka.queries.metrics;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorSupplier;
+import scala.Enumeration;
 import utils.tuples.ValQ1;
 
 public class MetricProcessorSupplier implements ProcessorSupplier<Windowed<Long>, ValQ1, Void, Void> {

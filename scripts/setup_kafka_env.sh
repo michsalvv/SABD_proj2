@@ -2,7 +2,6 @@
 
 ## clean kafka topics
 sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --delete --topic kafka-events;
-sudo docker exec kafka-broker kafka-streams-application-reset --bootstrap-servers kafka-broker:9092 --application-id  kafka-streams --input-topics kafka-events --force;
 
 sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --delete --topic q1-hourly;
 sudo docker exec kafka-broker kafka-topics --bootstrap-server kafka-broker:29092 --delete --topic q1-weekly;
