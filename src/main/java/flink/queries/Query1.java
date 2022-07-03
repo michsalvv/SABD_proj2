@@ -1,3 +1,15 @@
+package flink.queries;
+
+import flink.queries.metrics.ThroughputMetricQ1;
+import flink.queries.aggregate.AvgQ1;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import utils.Config;
+import utils.tuples.Event;
+import utils.Tools;
+
 /**
  * For those sensors having sensor_id < 10000, find
  * the number of measurements and the temperature
@@ -11,17 +23,6 @@
  * – every 1 week (event time)
  * – from the beginning of the dataset
  */
-package flink.queries;
-
-import flink.queries.metrics.ThroughputMetricQ1;
-import flink.queries.aggregate.AvgQ1;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import utils.Config;
-import utils.tuples.Event;
-import utils.Tools;
 
 public class Query1 extends Query {
     StreamExecutionEnvironment env;
@@ -78,9 +79,9 @@ public class Query1 extends Query {
         var weekSink = Tools.buildSink("results/q1-res/weekly");
         var monthSink = Tools.buildSink("results/q1-res/monthly");
 
-        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);
+        monthResult.addSink(monthSink).name("Monthly CSV").setParallelism(1);
         env.execute("Query 1");
     }
 }

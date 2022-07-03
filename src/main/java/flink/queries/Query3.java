@@ -1,3 +1,19 @@
+package flink.queries;
+
+import utils.tuples.Event;
+import flink.queries.aggregate.AvgQ3;
+import flink.queries.process.CellStatistics;
+import flink.queries.process.Median;
+import org.apache.flink.api.common.functions.JoinFunction;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import utils.Config;
+import utils.Tools;
+import utils.grid.Grid;
+import utils.tuples.ValQ3;
+
 /**
  * Consider the latitude and longitude coordinates
  * the latitude and longitude coordinates (38 , 2 ) and
@@ -19,22 +35,6 @@
  * – every 1 day (event time)
  * – every 1 week (event time)
  */
-
-package flink.queries;
-
-import utils.tuples.Event;
-import flink.queries.aggregate.AvgQ3;
-import flink.queries.process.CellStatistics;
-import flink.queries.process.Median;
-import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import utils.Config;
-import utils.Tools;
-import utils.grid.Grid;
-import utils.tuples.ValQ3;
 
 public class Query3 extends Query {
     StreamExecutionEnvironment env;
@@ -62,9 +62,10 @@ public class Query3 extends Query {
                         event.getTemperature(), 0D, grid.getCellFromEvent(event).getId()))
                 .keyBy(ValQ3::getCell_id);
 
-        /**
-         * Calcolo su finestra di un'ora
+        /*
+          Compute on hourly window
          */
+
         // Calcolo della media
         var hourMean = keyed
                 .window(TumblingEventTimeWindows.of(Time.minutes(60)))
@@ -105,9 +106,10 @@ public class Query3 extends Query {
                 .setParallelism(1)
                 .disableChaining();
 
-        /**
-         * Calcolo su finestra di un giorno
+        /*
+         * Compute on daily window
          */
+
         // Calcolo della media
         var dayMean = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(1)))
@@ -147,9 +149,10 @@ public class Query3 extends Query {
                 .setParallelism(1)
                 .disableChaining();
 
-        /**
-         * Calcolo su finestra di una settimana
+        /*
+         * Compute on weekly window
          */
+
         // Calcolo della media
         var weekMean = keyed
                 .window(TumblingEventTimeWindows.of(Time.days(7),Time.days(3)))
@@ -193,9 +196,9 @@ public class Query3 extends Query {
         var daySink = Tools.buildSink("results/q3-res/daily");
         var weekSink = Tools.buildSink("results/q3-res/weekly");
 
-        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);             // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);
+        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);
 
         env.execute("Query 3");
     }

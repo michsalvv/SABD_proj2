@@ -1,12 +1,10 @@
 package kafka.queries;
 
-import utils.tuples.OutputQuery;
 import utils.tuples.ValQ2;
 
 import java.io.Serializable;
 import java.util.*;
 
-// Non togliere i getter e setter altrimenti non serializza
 public class LocationAggregator implements Serializable {
 
     private static final String DELIMITER = ";";
@@ -37,10 +35,9 @@ public class LocationAggregator implements Serializable {
     }
 
     public void updateTops(ValQ2 val) {
-        //TOP:      2,3,4,5,8
         if (topLocations.containsKey(val.getMean_temp())) return;
 
-        Double lowestTopMean = topLocations.firstKey();         // = 2
+        Double lowestTopMean = topLocations.firstKey();
         if (val.getMean_temp() < lowestTopMean) return;
 
         topLocations.put(val.getMean_temp(), val.getLocation());
@@ -48,7 +45,6 @@ public class LocationAggregator implements Serializable {
     }
 
     public void updateLows(ValQ2 val) {
-//        LOW:      2,3,4,5,8
         if (lowLocations.containsKey(val.getMean_temp())) return;
 
         Double highestLowMean = lowLocations.lastKey();

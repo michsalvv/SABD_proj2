@@ -1,13 +1,9 @@
 package utils.tuples;
 
-import scala.Enumeration;
 import utils.Config;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 
 public class OutQ2 implements OutputQuery {
     private static final String header = "ts;location1;avg_temp1;location2;avg_temp2;location3;avg_temp3;" +

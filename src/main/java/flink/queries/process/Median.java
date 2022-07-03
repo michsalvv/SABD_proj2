@@ -11,8 +11,9 @@ import java.sql.Timestamp;
 public class Median extends ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWindow> {
     @Override
     public void process(Integer cell_id, ProcessWindowFunction<ValQ3, ValQ3, Integer, TimeWindow>.Context context, Iterable<ValQ3> iterable, Collector<ValQ3> collector) throws Exception {
-        Timestamp end = new Timestamp(context.window().getEnd());
         Timestamp start = new Timestamp(context.window().getStart());
+
+//        Timestamp end = new Timestamp(context.window().getEnd());
 //        System.out.printf("WINDOW: (%s,%s)\n", start,end);
 
         var sorted = Tools.sortByTemperature(iterable);

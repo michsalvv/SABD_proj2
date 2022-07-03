@@ -1,8 +1,5 @@
 package utils.tuples;
 
-import utils.grid.Cell;
-import utils.grid.Grid;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Comparator;

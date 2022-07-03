@@ -23,7 +23,6 @@ public class EventSerde implements Deserializer<Event>, DeserializationSchema<Ev
             validateCoordinates(event.getLatitude(), event.getLongitude());
             return event;
         } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
-//            e.printStackTrace();
             return null;
         }
     }
@@ -36,7 +35,6 @@ public class EventSerde implements Deserializer<Event>, DeserializationSchema<Ev
             validateCoordinates(event.getLatitude(), event.getLongitude());
             return event;
         } catch (TemperatureOutOfBoundException | CoordinatesOutOfBoundException e) {
-//            e.printStackTrace();
             return null;
         }
     }

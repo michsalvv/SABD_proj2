@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Properties;
 
 public class Producer {
@@ -44,11 +43,10 @@ public class Producer {
 
         BufferedReader br = new BufferedReader(new FileReader(Config.ORIGINAL_DATASET));
         String line = br.readLine(); //skip the header
-        System.out.println("Header: " + line);
+
         while ((line = br.readLine()) != null) {
             String[] values = line.split(Config.COMMA_DELIMITER);
             if (values.length == 10 && !values[5].isEmpty()) {
-                Calendar cal = Calendar.getInstance();
                 var date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(values[5]);
 
                 DateTimeZone timeZone = DateTimeZone.forID( "Europe/Rome" );
@@ -79,11 +77,9 @@ public class Producer {
                     Thread.sleep(diff);
                 }
                 producer.send(producerRecord);
-                System.out.printf("Send: %s%n", message);
                 previous = timestamp;
             }
         }
-//        producer.send(new ProducerRecord<>("flink-events", String.format("%s;%d;%,.4f;", "2026-01-01 00:00:00", 0, 0.2)));
         br.close();
     }
 

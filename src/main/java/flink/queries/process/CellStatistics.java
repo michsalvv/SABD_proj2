@@ -22,9 +22,11 @@ public class CellStatistics extends ProcessAllWindowFunction<ValQ3, OutputQuery,
 
     @Override
     public void process(ProcessAllWindowFunction<ValQ3, OutputQuery, TimeWindow>.Context context, Iterable<ValQ3> iterable, Collector<OutputQuery> collector) throws Exception {
-        Timestamp end = new Timestamp(context.window().getEnd());
         Timestamp start = new Timestamp(context.window().getStart());
+
+//        Timestamp end = new Timestamp(context.window().getEnd());
 //        System.out.printf("CELL STATISTICS WINDOW: (%s,%s)\n", start, end);
+
         OutputQuery stats = Tools.cellStatisticsOnRow(iterable, start, window);
         meter.markEvent();
         collector.collect(stats);

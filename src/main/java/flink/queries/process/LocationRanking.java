@@ -4,7 +4,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
-import org.apache.flink.streaming.api.functions.windowing.RichProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import utils.Tools;
@@ -23,8 +22,8 @@ public class LocationRanking extends ProcessAllWindowFunction<ValQ2, OutputQuery
 
     @Override
     public void process(ProcessAllWindowFunction<ValQ2, OutputQuery, TimeWindow>.Context context, Iterable<ValQ2> iterable, Collector<OutputQuery> collector){
-        Timestamp end = new Timestamp (context.window().getEnd());
-        Timestamp start = new Timestamp (context.window().getStart());
+//        Timestamp end = new Timestamp (context.window().getEnd());
+//        Timestamp start = new Timestamp (context.window().getStart());
 //        System.out.printf("WINDOW: (%s,%s)\n", new Timestamp(start),new Timestamp(end));
 
         var ranks = Tools.getLocationsRanking(iterable,window);

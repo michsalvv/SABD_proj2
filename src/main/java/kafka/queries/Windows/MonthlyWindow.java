@@ -11,7 +11,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-//Implementation of a daily custom window starting at given hour (like daily windows starting at 6pm) with a given timezone
+/**
+ * Implementation of a monthly custom window with a given timezone
+ */
 public class MonthlyWindow extends Windows<TimeWindow> {
 
     private final int startHour;
@@ -30,7 +32,6 @@ public class MonthlyWindow extends Windows<TimeWindow> {
         final Map<Long, TimeWindow> windows = new LinkedHashMap<>();
 
         if (first) {
-//            System.out.println("FIRST HANDLER");
             first=false;
             final Instant instant = Instant.ofEpochMilli(timestamp);
 

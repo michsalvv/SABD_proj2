@@ -6,12 +6,9 @@ import kafka.queries.LocationAggregator;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
-import utils.tuples.ValQ2;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Objects;
 
 public class LocationAggregatorSerde implements Serializer<LocationAggregator>, Deserializer<LocationAggregator> {
     public LocationAggregatorSerde() { }

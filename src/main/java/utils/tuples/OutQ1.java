@@ -1,7 +1,6 @@
 package utils.tuples;
 
 import utils.Config;
-import utils.Tools;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

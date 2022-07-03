@@ -23,30 +23,23 @@ public class Main {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // start a checkpoint every 30s
-        env.enableCheckpointing(3000);
+        env.enableCheckpointing(3000);      // Checkpoint every 30 seconds
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
-        // checkpoints have to complete within one minute, or are discarded
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
-        // only two consecutive checkpoint failures are tolerated
-        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(3);
-        // allow only one checkpoint to be in progress at the same time
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        // sets the checkpoint storage where checkpoint snapshots will be written
+
+        env.getCheckpointConfig().setCheckpointTimeout(60000);            // Checkpoint have to complete in 1 minute
+        env.getCheckpointConfig().setTolerableCheckpointFailureNumber(3); // only two consecutive checkpoint failures are tolerated
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);         // allow only one checkpoint to be in progress at the same time
         env.getCheckpointConfig().setCheckpointStorage("file:///opt/flink/flink-checkpoints");
 
-        env.setParallelism(parallelism);
+        env.setParallelism(parallelism);                                 // Set parallelismo choosed by user
 
         env.getConfig().setLatencyTrackingInterval(1000);
 
-        // enable checkpointing with finished tasks
         Configuration config = new Configuration();
-        config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
-
-
-
+        config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);      // enable checkpointing with finished tasks
         env.configure(config);
+
         KafkaSource<Event> source = KafkaSource.<Event>builder()
                 .setBootstrapServers("kafka-broker:9092")
                 .setTopics("flink-events")
@@ -55,11 +48,7 @@ public class Main {
                 .setValueOnlyDeserializer(new EventSerde())
                 .build();
 
-        // BIBBIA
-//        var src = env.fromSource(source, WatermarkStrategy
-//                        .<Event>forMonotonousTimestamps()
-//                        .withTimestampAssigner((event, l) -> event.getTimestamp().getTime()),
-//                "Kafka Source");
+        // Watermark Strategy
         var src = env.fromSource(source, WatermarkStrategy
                 .<Event>forMonotonousTimestamps(),"Kafka Source")
                 .setParallelism(1);
@@ -78,12 +67,6 @@ public class Main {
                 break;
             case ("Q3"):
                 query=q3;
-                break;
-            case ("Q1S"):
-//                query=q1SQL;
-                break;
-            case ("Q2S"):
-//                query=q2SQL;
                 break;
         }
         query.execute();

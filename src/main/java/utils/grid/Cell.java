@@ -2,8 +2,6 @@ package utils.grid;
 
 import scala.Serializable;
 
-import java.util.Objects;
-
 public class Cell implements Serializable {
     Integer id;
     Vertex top_left;

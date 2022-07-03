@@ -1,3 +1,16 @@
+package flink.queries;
+
+import utils.tuples.Event;
+import flink.queries.process.LocationRanking;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import flink.queries.aggregate.AvgQ2;
+import utils.Config;
+import utils.Tools;
+
+
 /**
  * Find the real-time top-5 ranking of locations (location) having the highest average temperature
  * and the top-5 ranking of locations (location) having the lowest average temperature
@@ -11,17 +24,6 @@
  * – every 1 week (event time)
  */
 
-package flink.queries;
-
-import utils.tuples.Event;
-import flink.queries.process.LocationRanking;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import flink.queries.aggregate.AvgQ2;
-import utils.Config;
-import utils.Tools;
 
 public class Query2 extends Query {
     StreamExecutionEnvironment env;
@@ -79,9 +81,9 @@ public class Query2 extends Query {
         var daySink = Tools.buildSink("results/q2-res/daily");
         var weekSink = Tools.buildSink("results/q2-res/weekly");
 
-        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
-        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);                 // Il sink deve avere parallelismo 1
-        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);               // Il sink deve avere parallelismo 1
+        hourResult.addSink(hourSink).name("Hourly CSV").setParallelism(1);
+        dayResult.addSink(daySink).name("Daily CSV").setParallelism(1);
+        weekResult.addSink(weekSink).name("Weekly CSV").setParallelism(1);
 
         env.execute("Query 2");
     }

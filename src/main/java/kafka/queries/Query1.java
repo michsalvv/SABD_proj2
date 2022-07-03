@@ -2,13 +2,11 @@ package kafka.queries;
 
 import kafka.queries.Windows.MonthlyWindow;
 import kafka.queries.Windows.WeeklyWindow;
-import kafka.queries.metrics.MetricProcessorSupplier;
 import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
 import utils.tuples.Event;
 import utils.Tools;
@@ -86,17 +84,13 @@ public class Query1 extends Query {
                     return valQ1;
                 });
 
-//        hourlyGrouped.toStream().print(Printed.toSysOut());
-//        weeklyGrouped.toStream().print(Printed.toSysOut());
-//        monthlyGrouped.toStream().print(Printed.toSysOut());
-
         /*
             Custom processors for only metrics computation
-         */
+
         monthlyGrouped.toStream().process(new MetricProcessorSupplier("monthly-thr"));
         weeklyGrouped.toStream().process(new MetricProcessorSupplier("weekly-thr"));
         hourlyGrouped.toStream().process(new MetricProcessorSupplier("hourly-thr"));
-
+        */
         monthlyGrouped.toStream().to("q1-monthly", Produced.with(
                   WindowedSerdes.timeWindowedSerdeFrom(Long.class, Long.MAX_VALUE), CustomSerdes.ValQ1()));
 

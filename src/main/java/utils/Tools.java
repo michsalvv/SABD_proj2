@@ -1,15 +1,11 @@
 package utils;
 
-import flink.queries.aggregate.AccumulatorQ1;
-import org.apache.flink.api.common.accumulators.Accumulator;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.dropwizard.metrics.DropwizardMeterWrapper;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.api.functions.sink.filesystem.rollingpolicies.DefaultRollingPolicy;
 import utils.tuples.*;
 import utils.tuples.ValQ3.ValQ3Comparator;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;

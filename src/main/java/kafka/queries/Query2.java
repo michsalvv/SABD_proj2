@@ -1,30 +1,19 @@
 package kafka.queries;
 
 import kafka.queries.Windows.WeeklyWindow;
-import kafka.queries.metrics.MetricProcessorSupplier;
-import kafka.queries.metrics.MetricProcessorSupplierQ2;
 import kafka.queries.metrics.MetricsCalculator;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.processor.ProcessorSupplier;
-import scala.tools.nsc.Global;
 import utils.tuples.Event;
 import utils.Tools;
 import utils.serdes.CustomSerdes;
 import utils.tuples.ValQ2;
 
-import java.sql.Timestamp;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Properties;
-
-import static org.apache.kafka.streams.kstream.Suppressed.BufferConfig.maxRecords;
-import static org.apache.kafka.streams.kstream.Suppressed.BufferConfig.unbounded;
 
 /**
  * Find the real-time top-5 ranking of locations
@@ -129,11 +118,11 @@ public class Query2 extends Query {
 
         /*
             Custom processors for only metrics computation
-         */
+
         hourlyResults.toStream().process(new MetricProcessorSupplierQ2("hourly-thr"));
         dailyResults.toStream().process(new MetricProcessorSupplierQ2("daily-thr"));
         weeklyResults.toStream().process(new MetricProcessorSupplierQ2("weekly-thr"));
-
+        */
 
         hourlyResults.toStream().to("q2-hourly", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
         dailyResults.toStream().to("q2-daily", Produced.with(Serdes.String(), CustomSerdes.Q2Output()));
